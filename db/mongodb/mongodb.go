@@ -14,7 +14,6 @@ import (
 const (
 	productCollection          = "product"
 	userSubscriptionCollection = "user_subscription"
-	emptyArgErr                = "empty %v not allowed"
 )
 
 type mongoDetails struct {
@@ -28,11 +27,11 @@ type mongoDetails struct {
 func NewMongoDB(uri string, dbName string) (db.DB, error) {
 
 	if uri == "" {
-		return nil, fmt.Errorf(emptyArgErr, "uri")
+		return nil, fmt.Errorf("NewMongoDB: empty url %w", db.EmptyArgErr)
 	}
 
 	if dbName == "" {
-		return nil, fmt.Errorf(emptyArgErr, "dbName")
+		return nil, fmt.Errorf("NewMongoDB: empty db name %w", db.EmptyArgErr)
 	}
 
 	client, err := connect(uri)

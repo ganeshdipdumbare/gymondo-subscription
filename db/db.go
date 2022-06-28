@@ -2,8 +2,14 @@ package db
 
 import (
 	"context"
+	"errors"
 
 	"github.com/ganeshdipdumbare/gymondo-subscription/domain"
+)
+
+var (
+	InvalidArgErr = errors.New("invalid argument")
+	EmptyArgErr   = errors.New("empty argument not allowed")
 )
 
 //go:generate mockgen -destination=../mocks/mock_db.go -package=mocks github.com/ganeshdipdumbare/gymondo-subscription/db DB

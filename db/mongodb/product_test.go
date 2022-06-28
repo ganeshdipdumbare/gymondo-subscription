@@ -142,6 +142,29 @@ func (suite *MongoTestSuite) TestGetProduct() {
 			want:    nil,
 			wantErr: true,
 		},
+		{
+			name: "should return all the records if empty id is passed",
+			fields: fields{
+				client:                     client,
+				dbName:                     "testdb",
+				ProductCollection:          client.Database(dbName).Collection(productCollection),
+				UserSubscriptionCollection: client.Database(dbName).Collection(userSubscriptionCollection),
+			},
+			args: args{
+				ctx: context.Background(),
+				id:  "",
+			},
+			want: []domain.Product{
+				{
+					ID:                 productIDHex.Hex(),
+					Name:               "test name",
+					SubscriptionPeriod: 1,
+					Price:              10,
+					TaxPercentage:      10,
+				},
+			},
+			wantErr: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

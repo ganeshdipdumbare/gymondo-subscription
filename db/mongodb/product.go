@@ -2,7 +2,9 @@ package mongodb
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/ganeshdipdumbare/gymondo-subscription/db"
 	"github.com/ganeshdipdumbare/gymondo-subscription/domain"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -39,13 +41,17 @@ func createDomainProductRecordSl(p []Product) []domain.Product {
 
 // GetProduct returns product for given id, if id is not given, will return all the products
 func (m *mongoDetails) GetProduct(ctx context.Context, id string) ([]domain.Product, error) {
-	idHex, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		return nil, err
+	filter := primitive.M{}
+	if id != "" {
+		idHex, err := primitive.ObjectIDFromHex(id)
+		if err != nil {
+			return nil, fmt.Errorf("GetProduct: invalid argument id %w", db.InvalidArgErr)
+		}
+		filter["_id"] = idHex
 	}
 
 	productRecords := []Product{}
-	err = m.getAllDocuments(ctx, m.ProductCollection, primitive.M{"_id": idHex}, &productRecords)
+	err := m.getAllDocuments(ctx, m.ProductCollection, filter, &productRecords)
 	if err != nil {
 		return nil, err
 	}

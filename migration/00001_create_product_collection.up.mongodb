@@ -1,0 +1,28 @@
+[
+    {
+        "insert":"product",
+        "documents":[
+            {
+                "_id": {"$oid":"62bac24b0bf33af1c877d97f"},
+                "name":"get in shape",
+                "subscription_period": 1,
+                "price":10.0,
+                "tax_percentage":10.0
+            }, 
+            {
+                "_id": {"$oid":"62bac25f83b5fcd9ddeb8170"},
+                "name":"hiit extreme",
+                "subscription_period": 2,
+                "price":20.0,
+                "tax_percentage":10.0
+            }, 
+            {
+                "_id": {"$oid":"62bac26a69c9410f916fc262"},
+                "name":"hiphop cardio",
+                "subscription_period": 3,
+                "price":30.0,
+                "tax_percentage":10.0
+            }
+        ]
+    }
+]

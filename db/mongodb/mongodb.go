@@ -3,9 +3,9 @@ package mongodb
 import (
 	"context"
 	"fmt"
-	"subscription/db"
 	"time"
 
+	"github.com/ganeshdipdumbare/gymondo-subscription/db"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )

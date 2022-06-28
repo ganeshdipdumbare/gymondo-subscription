@@ -2,11 +2,12 @@ package mongodb
 
 import (
 	"context"
-	"subscription/domain"
 
+	"github.com/ganeshdipdumbare/gymondo-subscription/domain"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+// Product represent mongodb record from Product collection
 type Product struct {
 	Id                 primitive.ObjectID `bson:"_id"`
 	Name               string             `bson:"name"`

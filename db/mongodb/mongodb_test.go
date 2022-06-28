@@ -6,6 +6,7 @@ import (
 	"log"
 	"testing"
 
+	"github.com/ganeshdipdumbare/gymondo-subscription/db"
 	"github.com/stretchr/testify/suite"
 	testcontainers "github.com/testcontainers/testcontainers-go"
 )
@@ -155,6 +156,48 @@ func (suite *MongoTestSuite) Test_connect() {
 			if (err != nil) != tt.wantErr {
 				t.Errorf("connect() error = %v, wantErr %v", err, tt.wantErr)
 				return
+			}
+		})
+	}
+}
+
+func (suite *MongoTestSuite) TestDisconnect() {
+	mgoC := suite.TestContainer
+	t := suite.T()
+
+	mongodb, err := NewMongoDB(fmt.Sprintf("mongodb://%s:%s", mgoC.Ip, mgoC.Port), "testdb")
+	if err != nil {
+		t.Error(err)
+	}
+
+	type fields struct {
+		database db.DB
+	}
+	type args struct {
+		in0 context.Context
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		wantErr bool
+	}{
+		{
+			name: "should return success for valid db",
+			args: args{
+				in0: context.Background(),
+			},
+			fields: fields{
+				database: mongodb,
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			m := tt.fields.database
+			if err := m.Disconnect(tt.args.in0); (err != nil) != tt.wantErr {
+				t.Errorf("mongoDetails.Disconnect() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}

@@ -16,16 +16,39 @@ type Product struct {
 	TaxPercentage      float64            `bson:"tax_percentage"`
 }
 
-// createMongoProductRecord creates db product record from domain product
-func createMongoProductRecord(p *domain.Product) *Product {
-	return &Product{}
-}
-
 // createDomainProductRecord creates domain product record from db product
 func createDomainProductRecord(p *Product) *domain.Product {
-	return &domain.Product{}
+	return &domain.Product{
+		ID:                 p.Id.Hex(),
+		Name:               p.Name,
+		SubscriptionPeriod: p.SubscriptionPeriod,
+		Price:              p.Price,
+		TaxPercentage:      p.TaxPercentage,
+	}
 }
 
+// createDomainProductRecordSl create domain Product slice from input product slice
+func createDomainProductRecordSl(p []Product) []domain.Product {
+	products := []domain.Product{}
+	for _, v := range p {
+		product := &v
+		products = append(products, *createDomainProductRecord(product))
+	}
+	return products
+}
+
+// GetProduct returns product for given id, if id is not given, will return all the products
 func (m *mongoDetails) GetProduct(ctx context.Context, id string) ([]domain.Product, error) {
-	return nil, nil
+	idHex, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, err
+	}
+
+	productRecords := []Product{}
+	err = m.getAllDocuments(ctx, m.ProductCollection, primitive.M{"_id": idHex}, &productRecords)
+	if err != nil {
+		return nil, err
+	}
+
+	return createDomainProductRecordSl(productRecords), nil
 }

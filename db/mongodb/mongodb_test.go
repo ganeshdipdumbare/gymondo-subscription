@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/ganeshdipdumbare/gymondo-subscription/db"
+	_ "github.com/golang-migrate/migrate/v4/database/mongodb"
 	"github.com/stretchr/testify/suite"
 	testcontainers "github.com/testcontainers/testcontainers-go"
 )

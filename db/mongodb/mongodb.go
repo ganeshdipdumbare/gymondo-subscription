@@ -6,12 +6,15 @@ import (
 	"time"
 
 	"github.com/ganeshdipdumbare/gymondo-subscription/db"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 const (
-	emptyArgErr = "empty %v not allowed"
+	productCollection          = "product"
+	userSubscriptionCollection = "user_subscription"
+	emptyArgErr                = "empty %v not allowed"
 )
 
 type mongoDetails struct {
@@ -37,8 +40,8 @@ func NewMongoDB(uri string, dbName string) (db.DB, error) {
 		return nil, err
 	}
 
-	productCollection := client.Database(dbName).Collection("product")
-	userSubscriptionCollection := client.Database(dbName).Collection("user_subscription")
+	productCollection := client.Database(dbName).Collection(productCollection)
+	userSubscriptionCollection := client.Database(dbName).Collection(userSubscriptionCollection)
 
 	return &mongoDetails{
 		client:                     client,
@@ -64,6 +67,16 @@ func connect(uri string) (*mongo.Client, error) {
 	}
 
 	return client, nil
+}
+
+// getAllDocuments returns all the documents for matching filter from given collection, otherwise error
+func (m *mongoDetails) getAllDocuments(ctx context.Context, collection *mongo.Collection, filter primitive.M, records interface{}) error {
+	cur, err := collection.Find(ctx, filter)
+	if err != nil {
+		return err
+	}
+
+	return cur.All(ctx, records)
 }
 
 // Disconnect disconnects db connection using client, otherwise returns error

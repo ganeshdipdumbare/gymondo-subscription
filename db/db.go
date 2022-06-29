@@ -16,5 +16,6 @@ var (
 // DB interface to interact with database
 type DB interface {
 	GetProduct(ctx context.Context, id string) ([]domain.Product, error)
+	SaveSubscription(ctx context.Context, subsciption *domain.UserSubscription) (*domain.UserSubscription, error)
 	Disconnect(ctx context.Context) error
 }

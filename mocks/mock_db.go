@@ -63,3 +63,18 @@ func (mr *MockDBMockRecorder) GetProduct(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProduct", reflect.TypeOf((*MockDB)(nil).GetProduct), arg0, arg1)
 }
+
+// SaveSubscription mocks base method.
+func (m *MockDB) SaveSubscription(arg0 context.Context, arg1 *domain.UserSubscription) (*domain.UserSubscription, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SaveSubscription", arg0, arg1)
+	ret0, _ := ret[0].(*domain.UserSubscription)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SaveSubscription indicates an expected call of SaveSubscription.
+func (mr *MockDBMockRecorder) SaveSubscription(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveSubscription", reflect.TypeOf((*MockDB)(nil).SaveSubscription), arg0, arg1)
+}

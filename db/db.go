@@ -17,5 +17,6 @@ var (
 type DB interface {
 	GetProduct(ctx context.Context, id string) ([]domain.Product, error)
 	SaveSubscription(ctx context.Context, subsciption *domain.UserSubscription) (*domain.UserSubscription, error)
+	GetSubscriptionByID(ctx context.Context, id string) (*domain.UserSubscription, error)
 	Disconnect(ctx context.Context) error
 }

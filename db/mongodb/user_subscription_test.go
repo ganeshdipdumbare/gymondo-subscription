@@ -89,6 +89,74 @@ func Test_createDBUserSubscriptionRecord(t *testing.T) {
 	}
 }
 
+func Test_createDomainUserSubscriptionRecord(t *testing.T) {
+	timeNow := time.Now()
+	idHex := primitive.NewObjectID()
+
+	type args struct {
+		us *UserSubscription
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    *domain.UserSubscription
+		wantErr bool
+	}{
+		{
+			name: "should return error for nil input",
+			args: args{
+				us: nil,
+			},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name: "should return record for valid input record",
+			args: args{
+				us: &UserSubscription{
+					Id:             idHex,
+					CreatedAt:      timeNow,
+					Email:          "test@gmail.com",
+					ProductName:    "test product",
+					Status:         string(domain.SubscriptionStatusActive),
+					StartDate:      timeNow,
+					UpdatedAt:      &timeNow,
+					EndDate:        timeNow,
+					Price:          10.0,
+					Tax:            10.0,
+					PauseStartDate: &timeNow,
+				},
+			},
+			want: &domain.UserSubscription{
+				ID:             idHex.Hex(),
+				CreatedAt:      timeNow,
+				Email:          "test@gmail.com",
+				ProductName:    "test product",
+				Status:         domain.SubscriptionStatusActive,
+				StartDate:      timeNow,
+				UpdatedAt:      &timeNow,
+				EndDate:        timeNow,
+				Price:          10.0,
+				Tax:            10.0,
+				PauseStartDate: &timeNow,
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := createDomainUserSubscriptionRecord(tt.args.us)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("createDomainUserSubscriptionRecord() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("createDomainUserSubscriptionRecord() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
 func (suite *MongoTestSuite) TestSaveSubscription() {
 	mgoC := suite.TestContainer
 	t := suite.T()
@@ -177,6 +245,46 @@ func (suite *MongoTestSuite) TestSaveSubscription() {
 			}
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("mongoDetails.SaveSubscription() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_mongoDetails_GetSubscriptionByID(t *testing.T) {
+	type fields struct {
+		client                     *mongo.Client
+		dbName                     string
+		ProductCollection          *mongo.Collection
+		UserSubscriptionCollection *mongo.Collection
+	}
+	type args struct {
+		ctx context.Context
+		id  string
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    *domain.UserSubscription
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			m := &mongoDetails{
+				client:                     tt.fields.client,
+				dbName:                     tt.fields.dbName,
+				ProductCollection:          tt.fields.ProductCollection,
+				UserSubscriptionCollection: tt.fields.UserSubscriptionCollection,
+			}
+			got, err := m.GetSubscriptionByID(tt.args.ctx, tt.args.id)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("mongoDetails.GetSubscriptionByID() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("mongoDetails.GetSubscriptionByID() = %v, want %v", got, tt.want)
 			}
 		})
 	}

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/ganeshdipdumbare/gymondo-subscription/db"
 	"github.com/ganeshdipdumbare/gymondo-subscription/domain"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -25,15 +26,15 @@ type UserSubscription struct {
 	PauseStartDate *time.Time         `bson:"pause_start_date,omitempty"`
 }
 
-// createDomainProductRecord creates domain product record from db product
+// createDomainProductRecord creates db UserSbuscription record from domain record
 func createDBUserSubscriptionRecord(us *domain.UserSubscription) (*UserSubscription, error) {
 	if us == nil {
-		return nil, fmt.Errorf("invalid input")
+		return nil, db.InvalidArgErr
 	}
 
 	idHex, err := primitive.ObjectIDFromHex(us.ID)
 	if err != nil {
-		return nil, err
+		return nil, db.InvalidArgErr
 	}
 
 	userSubscription := &UserSubscription{
@@ -58,12 +59,42 @@ func createDBUserSubscriptionRecord(us *domain.UserSubscription) (*UserSubscript
 	return userSubscription, nil
 }
 
+// createDomainUserSubscriptionRecord creates domain UserSubscription record from db record
+func createDomainUserSubscriptionRecord(us *UserSubscription) (*domain.UserSubscription, error) {
+	if us == nil {
+		return nil, db.InvalidArgErr
+	}
+
+	userSubscription := &domain.UserSubscription{
+		ID:          us.Id.Hex(),
+		CreatedAt:   us.CreatedAt,
+		Email:       us.Email,
+		ProductName: us.ProductName,
+		StartDate:   us.StartDate,
+		EndDate:     us.EndDate,
+		Price:       us.Price,
+		Tax:         us.Tax,
+		Status:      domain.SubscriptionStatus(us.Status),
+	}
+
+	if us.UpdatedAt != nil {
+		userSubscription.UpdatedAt = us.UpdatedAt
+	}
+
+	if us.PauseStartDate != nil {
+		userSubscription.PauseStartDate = us.PauseStartDate
+	}
+
+	return userSubscription, nil
+}
+
 // SaveSubscription create new subscription if not present in the database otherwise update and return the subscription object
 func (m *mongoDetails) SaveSubscription(ctx context.Context, us *domain.UserSubscription) (*domain.UserSubscription, error) {
 	userSubscription, err := createDBUserSubscriptionRecord(us)
 	if err != nil {
 		return nil, err
 	}
+
 	opts := options.Replace().SetUpsert(true)
 	filter := primitive.M{
 		"_id": userSubscription.Id,
@@ -74,4 +105,21 @@ func (m *mongoDetails) SaveSubscription(ctx context.Context, us *domain.UserSubs
 		return nil, err
 	}
 	return us, nil
+}
+
+// GetSubscriptionByID return subscription for given id
+func (m *mongoDetails) GetSubscriptionByID(ctx context.Context, id string) (*domain.UserSubscription, error) {
+
+	idHex, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, fmt.Errorf("GetSubscriptionByID: %w", db.InvalidArgErr)
+	}
+
+	filter := primitive.M{"_id": idHex}
+	record := UserSubscription{}
+	err = m.ProductCollection.FindOne(ctx, filter).Decode(&record)
+	if err != nil {
+		return nil, err
+	}
+	return createDomainUserSubscriptionRecord(&record)
 }

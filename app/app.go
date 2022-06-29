@@ -14,6 +14,7 @@ var (
 	NilArgErr     = errors.New("nil value not allowed")
 	InvalidArgErr = errors.New("invalid argument")
 	NotFoundErr   = errors.New("not found")
+	NotAllowed    = errors.New("not allowed")
 )
 
 //go:generate mockgen -destination=../mocks/mock_app.go -package=mocks github.com/ganeshdipdumbare/gymondo-subscription/app App
@@ -22,6 +23,7 @@ type App interface {
 	GetProduct(ctx context.Context, id string) ([]domain.Product, error)
 	BuySubscription(ctx context.Context, productID string, emailID string) (*domain.UserSubscription, error)
 	GetSubscriptionByID(ctx context.Context, id string) (*domain.UserSubscription, error)
+	UpdateSubscriptionStatusByID(ctx context.Context, id string, status domain.SubscriptionStatus) (*domain.UserSubscription, error)
 }
 
 type appDetails struct {
@@ -104,4 +106,47 @@ func (a *appDetails) GetSubscriptionByID(ctx context.Context, id string) (*domai
 		}
 	}
 	return subscriptionDetails, nil
+}
+
+// UpdateSubscriptionStatusByID update subscription status by id
+// status can be changed from active to cancelled or paused
+// paused subscription can be unpaused/active or cancelled
+// cancelled subscription status cannot be changed
+func (a *appDetails) UpdateSubscriptionStatusByID(ctx context.Context, id string, status domain.SubscriptionStatus) (*domain.UserSubscription, error) {
+	if id == "" {
+		return nil, InvalidArgErr
+	}
+
+	subscriptionDetails, err := a.database.GetSubscriptionByID(ctx, id)
+	if err != nil {
+		switch {
+		case errors.Is(err, db.InvalidArgErr):
+			return nil, fmt.Errorf("invalid argument:%s %w", err.Error(), InvalidArgErr)
+		default:
+			return nil, err
+		}
+	}
+
+	// check subscription's current status
+	timeNow := time.Now().UTC()
+	switch subscriptionDetails.Status {
+	case domain.SubscriptionStatusCancelled:
+		return nil, fmt.Errorf("cancelled subscription status change %w", NotAllowed)
+	case domain.SubscriptionStatusPaused:
+		if status != domain.SubscriptionStatusActive && status != domain.SubscriptionStatusCancelled {
+			return nil, fmt.Errorf("subscription status change %w", NotAllowed)
+		}
+
+		if status == domain.SubscriptionStatusActive {
+			pausedPeriod := timeNow.Sub(*subscriptionDetails.PauseStartDate)
+			subscriptionDetails.EndDate = subscriptionDetails.EndDate.Add(pausedPeriod)
+		}
+	}
+
+	if status == domain.SubscriptionStatusPaused {
+		subscriptionDetails.PauseStartDate = &timeNow
+	}
+	subscriptionDetails.Status = status
+	subscriptionDetails.UpdatedAt = &timeNow
+	return a.database.SaveSubscription(ctx, subscriptionDetails)
 }

@@ -79,3 +79,18 @@ func (mr *MockAppMockRecorder) GetSubscriptionByID(arg0, arg1 interface{}) *gomo
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSubscriptionByID", reflect.TypeOf((*MockApp)(nil).GetSubscriptionByID), arg0, arg1)
 }
+
+// UpdateSubscriptionStatusByID mocks base method.
+func (m *MockApp) UpdateSubscriptionStatusByID(arg0 context.Context, arg1 string, arg2 domain.SubscriptionStatus) (*domain.UserSubscription, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateSubscriptionStatusByID", arg0, arg1, arg2)
+	ret0, _ := ret[0].(*domain.UserSubscription)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateSubscriptionStatusByID indicates an expected call of UpdateSubscriptionStatusByID.
+func (mr *MockAppMockRecorder) UpdateSubscriptionStatusByID(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateSubscriptionStatusByID", reflect.TypeOf((*MockApp)(nil).UpdateSubscriptionStatusByID), arg0, arg1, arg2)
+}

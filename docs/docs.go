@@ -16,7 +16,36 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/v1/product/{id}": {
+        "/product": {
+            "get": {
+                "description": "return feteched  products",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "product-api"
+                ],
+                "summary": "get all the products",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/rest.getAllProductsResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.errorRespose"
+                        }
+                    }
+                }
+            }
+        },
+        "/product/{id}": {
             "get": {
                 "description": "return feteched  product record for input id",
                 "consumes": [
@@ -73,6 +102,17 @@ const docTemplate = `{
             "properties": {
                 "errorMessage": {
                     "type": "string"
+                }
+            }
+        },
+        "rest.getAllProductsResponse": {
+            "type": "object",
+            "properties": {
+                "products": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/rest.getProductByIdResponse"
+                    }
                 }
             }
         },

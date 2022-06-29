@@ -103,3 +103,43 @@ func (suite *HandlerTestSuite) TestGetProductByID() {
 		ErrorMessage: "product not found for given id",
 	}, errorResp)
 }
+
+func (suite *HandlerTestSuite) TestGetAllProducts() {
+	t := suite.T()
+
+	appInstance := suite.App
+	productID := "62bc589278b49cee00f01421"
+	productRecord := domain.Product{
+		ID:                 productID,
+		Name:               "test name",
+		SubscriptionPeriod: 1,
+		Price:              10,
+		TaxPercentage:      10,
+	}
+
+	appInstance.EXPECT().GetProduct(gomock.Any(), "").Return([]domain.Product{
+		productRecord,
+	}, nil).Times(1)
+
+	api := &apiDetails{
+		app: appInstance,
+	}
+	router := api.setupRouter()
+
+	// success test
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodGet, "/api/v1/product", nil)
+	router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	var v getAllProductsResponse
+	json.NewDecoder(w.Body).Decode(&v)
+	assert.DeepEqual(t, getAllProductsResponse{
+		Products: []getProductByIdResponse{{
+			ID:                 productRecord.ID,
+			Name:               productRecord.Name,
+			SubscriptionPeriod: productRecord.SubscriptionPeriod,
+			Price:              productRecord.Price,
+			TaxPercentage:      productRecord.TaxPercentage,
+		}}}, v)
+}

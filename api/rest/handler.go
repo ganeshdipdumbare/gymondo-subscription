@@ -24,6 +24,10 @@ type getProductByIdResponse struct {
 	TaxPercentage      float64 `json:"tax_percentage"`
 }
 
+type getAllProductsResponse struct {
+	Products []getProductByIdResponse `json:"products"`
+}
+
 type errorRespose struct {
 	ErrorMessage string `json:"errorMessage"`
 }
@@ -44,6 +48,7 @@ func (api *apiDetails) setupRouter() *gin.Engine {
 	v1group := r.Group(apiV1)
 	v1group.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	v1group.GET("/product/:id", api.getProductByID)
+	v1group.GET("/product", api.getAllProducts)
 
 	return r
 }
@@ -63,13 +68,13 @@ func (api *apiDetails) setupRouter() *gin.Engine {
 // @Failure 500 {object} rest.errorRespose
 // @Router /product/{id} [get]
 func (api *apiDetails) getProductByID(c *gin.Context) {
-	carId := c.Params.ByName("id")
-	if carId == "" {
+	productID := c.Params.ByName("id")
+	if productID == "" {
 		createErrorResponse(c, http.StatusBadRequest, "param id cannot be empty")
 		return
 	}
 
-	products, err := api.app.GetProduct(c, carId)
+	products, err := api.app.GetProduct(c, productID)
 	if err != nil {
 		statusCode := http.StatusInternalServerError
 		if errors.Is(err, app.InvalidArgErr) {
@@ -92,5 +97,35 @@ func (api *apiDetails) getProductByID(c *gin.Context) {
 		Price:              product.Price,
 		TaxPercentage:      product.TaxPercentage,
 	})
+	c.Done()
+}
+
+// getAllProducts godoc
+// @Summary get all the products
+// @Description return feteched  products
+// @Tags product-api
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} rest.getAllProductsResponse
+// @Failure 500 {object} rest.errorRespose
+// @Router /product [get]
+func (api *apiDetails) getAllProducts(c *gin.Context) {
+	products, err := api.app.GetProduct(c, "")
+	if err != nil {
+		createErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	respProducts := getAllProductsResponse{}
+	for _, v := range products {
+		respProducts.Products = append(respProducts.Products, getProductByIdResponse{
+			ID:                 v.ID,
+			Name:               v.Name,
+			SubscriptionPeriod: v.SubscriptionPeriod,
+			Price:              v.Price,
+			TaxPercentage:      v.TaxPercentage,
+		})
+	}
+	c.IndentedJSON(http.StatusOK, &respProducts)
 	c.Done()
 }

@@ -4,6 +4,13 @@ definitions:
       errorMessage:
         type: string
     type: object
+  rest.getAllProductsResponse:
+    properties:
+      products:
+        items:
+          $ref: '#/definitions/rest.getProductByIdResponse'
+        type: array
+    type: object
   rest.getProductByIdResponse:
     properties:
       id:
@@ -23,7 +30,26 @@ info:
   title: Gymondo subscription api
   version: "1.0"
 paths:
-  /api/v1/product/{id}:
+  /product:
+    get:
+      consumes:
+      - application/json
+      description: return feteched  products
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/rest.getAllProductsResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.errorRespose'
+      summary: get all the products
+      tags:
+      - product-api
+  /product/{id}:
     get:
       consumes:
       - application/json

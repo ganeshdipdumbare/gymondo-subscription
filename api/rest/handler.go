@@ -46,6 +46,20 @@ type buySubscriptionResponse struct {
 	Status      string    `json:"status"`
 }
 
+type getSubscriptionByIDResponse struct {
+	ID             string     `json:"id"`
+	CreatedAt      time.Time  `json:"created_at"`
+	Email          string     `json:"email"`
+	ProductName    string     `json:"product_name"`
+	StartDate      time.Time  `json:"start_date"`
+	EndDate        time.Time  `json:"end_date"`
+	Price          float64    `json:"price"`
+	Tax            float64    `json:"tax"`
+	Status         string     `json:"status"`
+	UpdatedAt      *time.Time `json:"updated_at,omitempty"`
+	PauseStartDate *time.Time `json:"pause_start_date,omitempty"`
+}
+
 type errorRespose struct {
 	ErrorMessage string `json:"errorMessage"`
 }
@@ -68,6 +82,7 @@ func (api *apiDetails) setupRouter() *gin.Engine {
 	v1group.GET("/product/:id", api.getProductByID)
 	v1group.GET("/product", api.getAllProducts)
 	v1group.POST("/subscription", api.buySubscription)
+	v1group.GET("/subscription/:id", api.getSubscriptionByID)
 
 	return r
 }
@@ -194,6 +209,52 @@ func (api *apiDetails) buySubscription(c *gin.Context) {
 		Price:       subscriptionDetails.Price,
 		Tax:         subscriptionDetails.Tax,
 		Status:      string(subscriptionDetails.Status),
+	})
+	c.Done()
+}
+
+// getSubscriptionByID godoc
+// @Summary get a subscription for given subscription id
+// @Description return feteched  subscription record for input id
+// @Tags subscription-api
+// @Accept  json
+// @Produce  json
+// @Param id path string true "subscription ID"
+// @Success 200 {object} rest.getSubscriptionByIDResponse
+// @Failure 404 {object} rest.errorRespose
+// @Failure 400 {object} rest.errorRespose
+// @Failure 500 {object} rest.errorRespose
+// @Router /subscription/{id} [get]
+func (api *apiDetails) getSubscriptionByID(c *gin.Context) {
+	subscriptionID := c.Params.ByName("id")
+	if subscriptionID == "" {
+		createErrorResponse(c, http.StatusBadRequest, "param id cannot be empty")
+		return
+	}
+
+	subscriptionDetails, err := api.app.GetSubscriptionByID(c, subscriptionID)
+	if err != nil {
+		statusCode := http.StatusInternalServerError
+		if errors.Is(err, app.NotFoundErr) {
+			statusCode = http.StatusNotFound
+		}
+
+		createErrorResponse(c, statusCode, err.Error())
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, &getSubscriptionByIDResponse{
+		ID:             subscriptionDetails.ID,
+		CreatedAt:      subscriptionDetails.CreatedAt,
+		Email:          subscriptionDetails.Email,
+		ProductName:    subscriptionDetails.ProductName,
+		StartDate:      subscriptionDetails.StartDate,
+		EndDate:        subscriptionDetails.EndDate,
+		Price:          subscriptionDetails.Price,
+		Tax:            subscriptionDetails.Tax,
+		Status:         string(subscriptionDetails.Status),
+		UpdatedAt:      subscriptionDetails.UpdatedAt,
+		PauseStartDate: subscriptionDetails.PauseStartDate,
 	})
 	c.Done()
 }

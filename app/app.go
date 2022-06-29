@@ -21,6 +21,7 @@ var (
 type App interface {
 	GetProduct(ctx context.Context, id string) ([]domain.Product, error)
 	BuySubscription(ctx context.Context, productID string, emailID string) (*domain.UserSubscription, error)
+	GetSubscriptionByID(ctx context.Context, id string) (*domain.UserSubscription, error)
 }
 
 type appDetails struct {
@@ -84,4 +85,23 @@ func (a *appDetails) BuySubscription(ctx context.Context, productID string, emai
 	}
 
 	return a.database.SaveSubscription(ctx, userSubscription)
+}
+
+// GetSubscriptionByID return subscription for given subscription id
+// returns invalid argument if id is empty
+func (a *appDetails) GetSubscriptionByID(ctx context.Context, id string) (*domain.UserSubscription, error) {
+	if id == "" {
+		return nil, InvalidArgErr
+	}
+
+	subscriptionDetails, err := a.database.GetSubscriptionByID(ctx, id)
+	if err != nil {
+		switch {
+		case errors.Is(err, db.InvalidArgErr):
+			return nil, fmt.Errorf("invalid argument:%s %w", err.Error(), InvalidArgErr)
+		default:
+			return nil, err
+		}
+	}
+	return subscriptionDetails, nil
 }

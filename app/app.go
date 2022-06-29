@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/ganeshdipdumbare/gymondo-subscription/db"
 	"github.com/ganeshdipdumbare/gymondo-subscription/domain"
@@ -12,12 +13,14 @@ import (
 var (
 	NilArgErr     = errors.New("nil value not allowed")
 	InvalidArgErr = errors.New("invalid argument")
+	NotFoundErr   = errors.New("not found")
 )
 
 //go:generate mockgen -destination=../mocks/mock_app.go -package=mocks github.com/ganeshdipdumbare/gymondo-subscription/app App
 // App interface which consists of business logic/use cases
 type App interface {
 	GetProduct(ctx context.Context, id string) ([]domain.Product, error)
+	BuySubscription(ctx context.Context, productID string, emailID string) (*domain.UserSubscription, error)
 }
 
 type appDetails struct {
@@ -49,4 +52,36 @@ func (a *appDetails) GetProduct(ctx context.Context, id string) ([]domain.Produc
 	}
 
 	return records, nil
+}
+
+// BuySubscription subscription for given user id will be created for given product id
+// returns invalid argument error if productID or emailID is empty
+func (a *appDetails) BuySubscription(ctx context.Context, productID string, emailID string) (*domain.UserSubscription, error) {
+	if productID == "" || emailID == "" {
+		return nil, InvalidArgErr
+	}
+
+	records, err := a.GetProduct(ctx, productID)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(records) == 0 {
+		return nil, fmt.Errorf("%v %w", productID, NotFoundErr)
+	}
+
+	product := records[0]
+	timeNow := time.Now().UTC()
+	userSubscription := &domain.UserSubscription{
+		CreatedAt:   timeNow,
+		Email:       emailID,
+		ProductName: product.Name,
+		StartDate:   timeNow,
+		EndDate:     timeNow.AddDate(0, int(product.SubscriptionPeriod), 0),
+		Price:       product.Price,
+		Status:      domain.SubscriptionStatusActive,
+		Tax:         product.Price * product.TaxPercentage / 100,
+	}
+
+	return a.database.SaveSubscription(ctx, userSubscription)
 }

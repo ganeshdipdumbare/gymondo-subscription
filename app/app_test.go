@@ -174,3 +174,82 @@ func (suite *AppTestSuite) Test_appDetails_GetProduct() {
 		})
 	}
 }
+
+func (suite *AppTestSuite) TestBuySubscription() {
+	t := suite.T()
+
+	database := suite.Database
+	subscriptionId := "62bb4ecdba3bbe275f8c7788"
+	productId := "62bb4ecdba3bbe275f8c7788"
+	ctx := context.Background()
+	subscriptionRecord := domain.UserSubscription{
+		ID: subscriptionId,
+	}
+	productRecord := domain.Product{
+		ID:                 productId,
+		Name:               "testproduct",
+		SubscriptionPeriod: 1,
+		Price:              10,
+		TaxPercentage:      10,
+	}
+
+	gomock.InOrder(
+		database.EXPECT().GetProduct(gomock.Any(), gomock.AssignableToTypeOf(productRecord.ID)).Return([]domain.Product{
+			productRecord,
+		}, nil),
+		database.EXPECT().SaveSubscription(gomock.Any(), gomock.AssignableToTypeOf(&subscriptionRecord)).Return(&subscriptionRecord, nil),
+	)
+
+	type fields struct {
+		database db.DB
+	}
+	type args struct {
+		ctx       context.Context
+		productID string
+		emailID   string
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    *domain.UserSubscription
+		wantErr bool
+	}{
+		{
+			name: "should return success for valid inputs",
+			fields: fields{
+				database: database,
+			},
+			args: args{
+				ctx:       ctx,
+				productID: productId,
+				emailID:   "testmail@test.com",
+			},
+			wantErr: false,
+		},
+		{
+			name: "should return error for empty inputs",
+			fields: fields{
+				database: database,
+			},
+			args: args{
+				ctx:       ctx,
+				productID: "",
+				emailID:   "testmail@test.com",
+			},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			a := &appDetails{
+				database: tt.fields.database,
+			}
+			_, err := a.BuySubscription(tt.args.ctx, tt.args.productID, tt.args.emailID)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("appDetails.BuySubscription() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+		})
+	}
+}

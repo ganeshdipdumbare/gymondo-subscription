@@ -14,7 +14,6 @@ import (
 
 func Test_createDBUserSubscriptionRecord(t *testing.T) {
 	timeNow := time.Now()
-	idHex := primitive.NewObjectID()
 	type args struct {
 		us *domain.UserSubscription
 	}
@@ -33,20 +32,9 @@ func Test_createDBUserSubscriptionRecord(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name: "should return error for invalid id",
-			args: args{
-				us: &domain.UserSubscription{
-					ID: "invalidid",
-				},
-			},
-			want:    nil,
-			wantErr: true,
-		},
-		{
 			name: "should return record for valid input record",
 			args: args{
 				us: &domain.UserSubscription{
-					ID:             idHex.Hex(),
 					CreatedAt:      timeNow,
 					Email:          "test@gmail.com",
 					ProductName:    "test product",
@@ -60,7 +48,6 @@ func Test_createDBUserSubscriptionRecord(t *testing.T) {
 				},
 			},
 			want: &UserSubscription{
-				Id:             idHex,
 				CreatedAt:      timeNow,
 				Email:          "test@gmail.com",
 				ProductName:    "test product",
@@ -281,7 +268,7 @@ func (suite *MongoTestSuite) TestGetSubscriptionByID() {
 		ProductCollection:          client.Database(dbName).Collection(productCollection),
 		UserSubscriptionCollection: client.Database(dbName).Collection(userSubscriptionCollection),
 	}
-	_, err = m.SaveSubscription(context.Background(), us)
+	us, err = m.SaveSubscription(context.Background(), us)
 	if err != nil {
 		t.Fatal("unable to save subscription")
 	}
@@ -328,7 +315,7 @@ func (suite *MongoTestSuite) TestGetSubscriptionByID() {
 			},
 			args: args{
 				ctx: context.Background(),
-				id:  idHex.Hex(),
+				id:  us.ID,
 			},
 			want:    us,
 			wantErr: false,

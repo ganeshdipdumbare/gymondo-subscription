@@ -1,4 +1,35 @@
 definitions:
+  rest.buySubscriptionRequest:
+    properties:
+      email_id:
+        type: string
+      product_id:
+        type: string
+    required:
+    - email_id
+    - product_id
+    type: object
+  rest.buySubscriptionResponse:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      end_date:
+        type: string
+      id:
+        type: string
+      price:
+        type: number
+      product_name:
+        type: string
+      start_date:
+        type: string
+      status:
+        type: string
+      tax:
+        type: number
+    type: object
   rest.errorRespose:
     properties:
       errorMessage:
@@ -30,6 +61,36 @@ info:
   title: Gymondo subscription api
   version: "1.0"
 paths:
+  /car:
+    post:
+      consumes:
+      - application/json
+      description: return created subscription record
+      parameters:
+      - description: create subscription request
+        in: body
+        name: buySubscriptionRequest
+        required: true
+        schema:
+          $ref: '#/definitions/rest.buySubscriptionRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/rest.buySubscriptionResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.errorRespose'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.errorRespose'
+      summary: create a subscription for the user with given product
+      tags:
+      - subscription-api
   /product:
     get:
       consumes:

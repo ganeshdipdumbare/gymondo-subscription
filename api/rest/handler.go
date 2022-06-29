@@ -3,6 +3,7 @@ package rest
 import (
 	"errors"
 	"net/http"
+	"time"
 
 	"github.com/ganeshdipdumbare/gymondo-subscription/app"
 	docs "github.com/ganeshdipdumbare/gymondo-subscription/docs"
@@ -28,6 +29,23 @@ type getAllProductsResponse struct {
 	Products []getProductByIdResponse `json:"products"`
 }
 
+type buySubscriptionRequest struct {
+	ProductID string `json:"product_id" validate:"required"`
+	EmailID   string `json:"email_id" validate:"required"`
+}
+
+type buySubscriptionResponse struct {
+	ID          string    `json:"id"`
+	CreatedAt   time.Time `json:"created_at"`
+	Email       string    `json:"email"`
+	ProductName string    `json:"product_name"`
+	StartDate   time.Time `json:"start_date"`
+	EndDate     time.Time `json:"end_date"`
+	Price       float64   `json:"price"`
+	Tax         float64   `json:"tax"`
+	Status      string    `json:"status"`
+}
+
 type errorRespose struct {
 	ErrorMessage string `json:"errorMessage"`
 }
@@ -49,6 +67,7 @@ func (api *apiDetails) setupRouter() *gin.Engine {
 	v1group.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	v1group.GET("/product/:id", api.getProductByID)
 	v1group.GET("/product", api.getAllProducts)
+	v1group.POST("/subscription", api.buySubscription)
 
 	return r
 }
@@ -127,5 +146,54 @@ func (api *apiDetails) getAllProducts(c *gin.Context) {
 		})
 	}
 	c.IndentedJSON(http.StatusOK, &respProducts)
+	c.Done()
+}
+
+// buySubscription godoc
+// @Summary create a subscription for the user with given product
+// @Description return created subscription record
+// @Tags subscription-api
+// @Accept  json
+// @Produce  json
+// @Param buySubscriptionRequest body rest.buySubscriptionRequest true "create subscription request"
+// @Success 201 {object} rest.buySubscriptionResponse
+// @Failure 400 {object} rest.errorRespose
+// @Failure 500 {object} rest.errorRespose
+// @Router /subscription [post]
+func (api *apiDetails) buySubscription(c *gin.Context) {
+	req := &buySubscriptionRequest{}
+	err := c.BindJSON(req)
+	if err != nil {
+		createErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	err = validate.Struct(req)
+	if err != nil {
+		createErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	subscriptionDetails, err := api.app.BuySubscription(c, req.ProductID, req.EmailID)
+	if err != nil {
+		statusCode := http.StatusInternalServerError
+		if errors.Is(err, app.InvalidArgErr) {
+			statusCode = http.StatusBadRequest
+		}
+		createErrorResponse(c, statusCode, err.Error())
+		return
+	}
+
+	c.IndentedJSON(http.StatusCreated, &buySubscriptionResponse{
+		ID:          subscriptionDetails.ID,
+		CreatedAt:   subscriptionDetails.CreatedAt,
+		Email:       subscriptionDetails.Email,
+		ProductName: subscriptionDetails.ProductName,
+		StartDate:   subscriptionDetails.StartDate,
+		EndDate:     subscriptionDetails.EndDate,
+		Price:       subscriptionDetails.Price,
+		Tax:         subscriptionDetails.Tax,
+		Status:      string(subscriptionDetails.Status),
+	})
 	c.Done()
 }

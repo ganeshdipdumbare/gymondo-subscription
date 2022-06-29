@@ -9,6 +9,7 @@ import (
 	"github.com/ganeshdipdumbare/gymondo-subscription/app"
 	"github.com/ganeshdipdumbare/gymondo-subscription/domain"
 	"github.com/ganeshdipdumbare/gymondo-subscription/mocks"
+	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/suite"
 	"gotest.tools/assert"
@@ -142,4 +143,51 @@ func (suite *HandlerTestSuite) TestGetAllProducts() {
 			Price:              productRecord.Price,
 			TaxPercentage:      productRecord.TaxPercentage,
 		}}}, v)
+}
+
+func (suite *HandlerTestSuite) TestBuySubscription() {
+	t := suite.T()
+
+	appInstance := suite.App
+	productID := "62bc589278b49cee00f01421"
+	productRecord := domain.Product{
+		ID:                 productID,
+		Name:               "test name",
+		SubscriptionPeriod: 1,
+		Price:              10,
+		TaxPercentage:      10,
+	}
+
+	appInstance.EXPECT().GetProduct(gomock.Any(), "").Return([]domain.Product{
+		productRecord,
+	}, nil).Times(1)
+
+	api := &apiDetails{
+		app: appInstance,
+	}
+	router := api.setupRouter()
+
+	type fields struct {
+		app    app.App
+		server *http.Server
+	}
+	type args struct {
+		c *gin.Context
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			api := &apiDetails{
+				app:    tt.fields.app,
+				server: tt.fields.server,
+			}
+			api.buySubscription(tt.args.c)
+		})
+	}
 }

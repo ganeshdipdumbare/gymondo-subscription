@@ -7,6 +7,52 @@
         "version": "1.0"
     },
     "paths": {
+        "/car": {
+            "post": {
+                "description": "return created subscription record",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subscription-api"
+                ],
+                "summary": "create a subscription for the user with given product",
+                "parameters": [
+                    {
+                        "description": "create subscription request",
+                        "name": "buySubscriptionRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/rest.buySubscriptionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/rest.buySubscriptionResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/rest.errorRespose"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.errorRespose"
+                        }
+                    }
+                }
+            }
+        },
         "/product": {
             "get": {
                 "description": "return feteched  products",
@@ -88,6 +134,53 @@
         }
     },
     "definitions": {
+        "rest.buySubscriptionRequest": {
+            "type": "object",
+            "required": [
+                "email_id",
+                "product_id"
+            ],
+            "properties": {
+                "email_id": {
+                    "type": "string"
+                },
+                "product_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "rest.buySubscriptionResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "end_date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "product_name": {
+                    "type": "string"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "tax": {
+                    "type": "number"
+                }
+            }
+        },
         "rest.errorRespose": {
             "type": "object",
             "properties": {

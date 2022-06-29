@@ -15,7 +15,7 @@ import (
 
 // UserSubscription represent mongodb record from user_subscription collection
 type UserSubscription struct {
-	Id             primitive.ObjectID `bson:"_id"`
+	Id             primitive.ObjectID `bson:"_id,omitempty"`
 	CreatedAt      time.Time          `bson:"created_at"`
 	UpdatedAt      *time.Time         `bson:"updated_at,omitempty"`
 	Email          string             `bson:"email"`
@@ -34,13 +34,7 @@ func createDBUserSubscriptionRecord(us *domain.UserSubscription) (*UserSubscript
 		return nil, db.InvalidArgErr
 	}
 
-	idHex, err := primitive.ObjectIDFromHex(us.ID)
-	if err != nil {
-		return nil, db.InvalidArgErr
-	}
-
 	userSubscription := &UserSubscription{
-		Id:          idHex,
 		CreatedAt:   us.CreatedAt,
 		Email:       us.Email,
 		ProductName: us.ProductName,
@@ -49,6 +43,14 @@ func createDBUserSubscriptionRecord(us *domain.UserSubscription) (*UserSubscript
 		Price:       us.Price,
 		Tax:         us.Tax,
 		Status:      string(us.Status),
+	}
+
+	if us.ID != "" {
+		idHex, err := primitive.ObjectIDFromHex(us.ID)
+		if err != nil {
+			return nil, db.InvalidArgErr
+		}
+		userSubscription.Id = idHex
 	}
 
 	if us.UpdatedAt != nil {
@@ -98,14 +100,20 @@ func (m *mongoDetails) SaveSubscription(ctx context.Context, us *domain.UserSubs
 	}
 
 	opts := options.Replace().SetUpsert(true)
-	filter := primitive.M{
-		"_id": userSubscription.Id,
+	filter := primitive.M{}
+
+	if !userSubscription.Id.IsZero() {
+		filter["_id"] = userSubscription.Id
+	} else {
+		filter["_id"] = primitive.NewObjectID()
 	}
 
-	_, err = m.UserSubscriptionCollection.ReplaceOne(ctx, filter, userSubscription, opts)
+	result, err := m.UserSubscriptionCollection.ReplaceOne(ctx, filter, userSubscription, opts)
 	if err != nil {
 		return nil, err
 	}
+
+	us.ID = result.UpsertedID.(primitive.ObjectID).Hex()
 	return us, nil
 }
 

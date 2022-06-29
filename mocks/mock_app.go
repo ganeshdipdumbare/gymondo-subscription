@@ -35,6 +35,21 @@ func (m *MockApp) EXPECT() *MockAppMockRecorder {
 	return m.recorder
 }
 
+// BuySubscription mocks base method.
+func (m *MockApp) BuySubscription(arg0 context.Context, arg1, arg2 string) (*domain.UserSubscription, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "BuySubscription", arg0, arg1, arg2)
+	ret0, _ := ret[0].(*domain.UserSubscription)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// BuySubscription indicates an expected call of BuySubscription.
+func (mr *MockAppMockRecorder) BuySubscription(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BuySubscription", reflect.TypeOf((*MockApp)(nil).BuySubscription), arg0, arg1, arg2)
+}
+
 // GetProduct mocks base method.
 func (m *MockApp) GetProduct(arg0 context.Context, arg1 string) ([]domain.Product, error) {
 	m.ctrl.T.Helper()

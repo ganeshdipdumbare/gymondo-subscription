@@ -1,0 +1,59 @@
+definitions:
+  rest.errorRespose:
+    properties:
+      errorMessage:
+        type: string
+    type: object
+  rest.getProductByIdResponse:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      subscription_period:
+        type: integer
+      tax_percentage:
+        type: number
+    type: object
+info:
+  contact: {}
+  description: A REST server to manage user subscriptions of the products
+  title: Gymondo subscription api
+  version: "1.0"
+paths:
+  /api/v1/product/{id}:
+    get:
+      consumes:
+      - application/json
+      description: return feteched  product record for input id
+      parameters:
+      - description: product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/rest.getProductByIdResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.errorRespose'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.errorRespose'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.errorRespose'
+      summary: get a product for given product id
+      tags:
+      - product-api
+swagger: "2.0"

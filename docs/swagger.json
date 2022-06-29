@@ -1,0 +1,91 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "A REST server to manage user subscriptions of the products",
+        "title": "Gymondo subscription api",
+        "contact": {},
+        "version": "1.0"
+    },
+    "paths": {
+        "/api/v1/product/{id}": {
+            "get": {
+                "description": "return feteched  product record for input id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "product-api"
+                ],
+                "summary": "get a product for given product id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "product ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/rest.getProductByIdResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/rest.errorRespose"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/rest.errorRespose"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.errorRespose"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "rest.errorRespose": {
+            "type": "object",
+            "properties": {
+                "errorMessage": {
+                    "type": "string"
+                }
+            }
+        },
+        "rest.getProductByIdResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "subscription_period": {
+                    "type": "integer"
+                },
+                "tax_percentage": {
+                    "type": "number"
+                }
+            }
+        }
+    }
+}

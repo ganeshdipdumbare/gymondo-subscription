@@ -2,12 +2,14 @@ package mongodb
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
 	"github.com/ganeshdipdumbare/gymondo-subscription/db"
 	"github.com/ganeshdipdumbare/gymondo-subscription/domain"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
@@ -116,9 +118,12 @@ func (m *mongoDetails) GetSubscriptionByID(ctx context.Context, id string) (*dom
 	}
 
 	filter := primitive.M{"_id": idHex}
-	record := UserSubscription{}
-	err = m.ProductCollection.FindOne(ctx, filter).Decode(&record)
+	var record UserSubscription
+	err = m.UserSubscriptionCollection.FindOne(ctx, filter).Decode(&record)
 	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return nil, db.NotFoundErr
+		}
 		return nil, err
 	}
 	return createDomainUserSubscriptionRecord(&record)

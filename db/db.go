@@ -10,6 +10,7 @@ import (
 var (
 	InvalidArgErr = errors.New("invalid argument")
 	EmptyArgErr   = errors.New("empty argument not allowed")
+	NotFoundErr   = errors.New("record not found")
 )
 
 //go:generate mockgen -destination=../mocks/mock_db.go -package=mocks github.com/ganeshdipdumbare/gymondo-subscription/db DB

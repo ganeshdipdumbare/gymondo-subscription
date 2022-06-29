@@ -250,7 +250,42 @@ func (suite *MongoTestSuite) TestSaveSubscription() {
 	}
 }
 
-func Test_mongoDetails_GetSubscriptionByID(t *testing.T) {
+func (suite *MongoTestSuite) TestGetSubscriptionByID() {
+	mgoC := suite.TestContainer
+	t := suite.T()
+	client, err := connect(fmt.Sprintf("mongodb://%s:%s", mgoC.Ip, mgoC.Port))
+	if err != nil {
+		t.Fatal(err)
+	}
+	dbName := "testdb"
+	timeNow := time.Now().UTC()
+	idHex := primitive.NewObjectID()
+
+	us := &domain.UserSubscription{
+		ID:             idHex.Hex(),
+		CreatedAt:      timeNow,
+		Email:          "test@gmail.com",
+		ProductName:    "test product",
+		Status:         domain.SubscriptionStatusActive,
+		StartDate:      timeNow,
+		UpdatedAt:      &timeNow,
+		EndDate:        timeNow,
+		Price:          10.0,
+		Tax:            10.0,
+		PauseStartDate: &timeNow,
+	}
+
+	m := &mongoDetails{
+		client:                     client,
+		dbName:                     dbName,
+		ProductCollection:          client.Database(dbName).Collection(productCollection),
+		UserSubscriptionCollection: client.Database(dbName).Collection(userSubscriptionCollection),
+	}
+	_, err = m.SaveSubscription(context.Background(), us)
+	if err != nil {
+		t.Fatal("unable to save subscription")
+	}
+
 	type fields struct {
 		client                     *mongo.Client
 		dbName                     string
@@ -268,7 +303,36 @@ func Test_mongoDetails_GetSubscriptionByID(t *testing.T) {
 		want    *domain.UserSubscription
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "should return error for invalid id",
+			fields: fields{
+				client:                     client,
+				dbName:                     dbName,
+				ProductCollection:          client.Database(dbName).Collection(productCollection),
+				UserSubscriptionCollection: client.Database(dbName).Collection(userSubscriptionCollection),
+			},
+			args: args{
+				ctx: context.Background(),
+				id:  "invalidid",
+			},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name: "should return record for valid id",
+			fields: fields{
+				client:                     client,
+				dbName:                     dbName,
+				ProductCollection:          client.Database(dbName).Collection(productCollection),
+				UserSubscriptionCollection: client.Database(dbName).Collection(userSubscriptionCollection),
+			},
+			args: args{
+				ctx: context.Background(),
+				id:  idHex.Hex(),
+			},
+			want:    us,
+			wantErr: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -278,13 +342,10 @@ func Test_mongoDetails_GetSubscriptionByID(t *testing.T) {
 				ProductCollection:          tt.fields.ProductCollection,
 				UserSubscriptionCollection: tt.fields.UserSubscriptionCollection,
 			}
-			got, err := m.GetSubscriptionByID(tt.args.ctx, tt.args.id)
+			_, err := m.GetSubscriptionByID(tt.args.ctx, tt.args.id)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("mongoDetails.GetSubscriptionByID() error = %v, wantErr %v", err, tt.wantErr)
 				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("mongoDetails.GetSubscriptionByID() = %v, want %v", got, tt.want)
 			}
 		})
 	}

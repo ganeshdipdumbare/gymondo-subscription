@@ -31,7 +31,7 @@ type getAllProductsResponse struct {
 
 type buySubscriptionRequest struct {
 	ProductID string `json:"product_id" validate:"required"`
-	EmailID   string `json:"email_id" validate:"required"`
+	EmailID   string `json:"email_id" validate:"email,required"`
 }
 
 type buySubscriptionResponse struct {

@@ -4,12 +4,12 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/ganeshdipdumbare/gymondo-subscription/app"
 	"github.com/ganeshdipdumbare/gymondo-subscription/domain"
 	"github.com/ganeshdipdumbare/gymondo-subscription/mocks"
-	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/suite"
 	"gotest.tools/assert"
@@ -40,6 +40,7 @@ func TestHandlerTestSuite(t *testing.T) {
 func (suite *HandlerTestSuite) TestGetProductByID() {
 	t := suite.T()
 
+	getProdApiPath := "/api/v1/product/"
 	appInstance := suite.App
 	productID := "62bc589278b49cee00f01421"
 	productIDNotPresent := "62bc59417f1271f8e9c5e1c4"
@@ -68,7 +69,7 @@ func (suite *HandlerTestSuite) TestGetProductByID() {
 
 	// success test
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest(http.MethodGet, "/api/v1/product/"+productID, nil)
+	req, _ := http.NewRequest(http.MethodGet, getProdApiPath+productID, nil)
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
 
@@ -84,7 +85,7 @@ func (suite *HandlerTestSuite) TestGetProductByID() {
 
 	// invalid id in the input
 	w = httptest.NewRecorder()
-	req, _ = http.NewRequest(http.MethodGet, "/api/v1/product/"+"invalidid", nil)
+	req, _ = http.NewRequest(http.MethodGet, getProdApiPath+"invalidid", nil)
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
@@ -95,7 +96,7 @@ func (suite *HandlerTestSuite) TestGetProductByID() {
 
 	// valid id for which product not present
 	w = httptest.NewRecorder()
-	req, _ = http.NewRequest(http.MethodGet, "/api/v1/product/"+productIDNotPresent, nil)
+	req, _ = http.NewRequest(http.MethodGet, getProdApiPath+productIDNotPresent, nil)
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusNotFound, w.Code)
 
@@ -150,44 +151,37 @@ func (suite *HandlerTestSuite) TestBuySubscription() {
 
 	appInstance := suite.App
 	productID := "62bc589278b49cee00f01421"
-	productRecord := domain.Product{
-		ID:                 productID,
-		Name:               "test name",
-		SubscriptionPeriod: 1,
-		Price:              10,
-		TaxPercentage:      10,
-	}
+	subscriptionID := "62bc589278b49cee00f01421"
+	emailID := "test@test.com"
 
-	appInstance.EXPECT().GetProduct(gomock.Any(), "").Return([]domain.Product{
-		productRecord,
-	}, nil).Times(1)
+	gomock.InOrder(
+		appInstance.EXPECT().BuySubscription(gomock.Any(), productID, emailID).Return(&domain.UserSubscription{
+			ID: subscriptionID,
+		}, nil).Times(1),
+	)
 
 	api := &apiDetails{
 		app: appInstance,
 	}
 	router := api.setupRouter()
 
-	type fields struct {
-		app    app.App
-		server *http.Server
-	}
-	type args struct {
-		c *gin.Context
-	}
-	tests := []struct {
-		name   string
-		fields fields
-		args   args
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			api := &apiDetails{
-				app:    tt.fields.app,
-				server: tt.fields.server,
-			}
-			api.buySubscription(tt.args.c)
-		})
-	}
+	// success test
+	w := httptest.NewRecorder()
+	body := strings.NewReader(`{
+		"product_id":"62bc589278b49cee00f01421",
+		"email_id":"test@test.com"
+	}`)
+	req, _ := http.NewRequest(http.MethodPost, "/api/v1/subscription", body)
+	router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusCreated, w.Code)
+
+	// invalid input email
+	w = httptest.NewRecorder()
+	body = strings.NewReader(`{
+		"product_id":"62bc589278b49cee00f01421",
+		"email_id":"test"
+	}`)
+	req, _ = http.NewRequest(http.MethodPost, "/api/v1/subscription", body)
+	router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
 }

@@ -17,7 +17,7 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
-// @title Gymondo subscription api
+// @title Gymondo Subscription API
 // @version 1.0
 // @description A REST server to manage user subscriptions of the products
 // NewApi creates new api instance, otherwise returns error

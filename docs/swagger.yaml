@@ -111,7 +111,7 @@ info:
   contact: {}
   description: A REST server to manage user subscriptions of the products
   license: {}
-  title: Gymondo subscription api
+  title: Gymondo Subscription API
   version: "1.0"
 paths:
   /product:

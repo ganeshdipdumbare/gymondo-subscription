@@ -81,7 +81,6 @@ The microservice is used to fetch products and buy subscription with particular 
         - Product Collection - `product` created during migration at the start of service stores product records.
         - User Subscription Collection - `user_subscription` store user subscription records.
     - config - consists of functions crucial to start the service
-    - api - consists of api interface which provides api functions
     - migration - consists of files used in migration of `reference data`. In our case `product` data.  
     - api - the layer is used to communicate with the service. The new APIs like grpc or graphQL can be implemented in this layer by keeping other layers intact.
 - The product data is migrated at the start of the service.

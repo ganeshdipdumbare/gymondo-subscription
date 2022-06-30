@@ -324,6 +324,8 @@ func (api *apiDetails) updateSubscriptionStatusByID(c *gin.Context) {
 			statusCode = http.StatusBadRequest
 		case errors.Is(err, app.NotFoundErr):
 			statusCode = http.StatusNotFound
+		case errors.Is(err, app.StatusUnchangedErr):
+			statusCode = http.StatusBadRequest
 		}
 		createErrorResponse(c, statusCode, err.Error())
 		return

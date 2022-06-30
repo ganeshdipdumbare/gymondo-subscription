@@ -42,28 +42,28 @@ The microservice is used to fetch products and buy subscription with particular 
 
 ## API Operation
 1. Fetch all the products 
-```json
+```
 [GET] /api/v1/product
 ```
 2. Fetch product with given product ID 
-```json
+```
 [GET] /api/v1/product/:id
 ```
 3. Buy a subscription for particular product
-```json
+```
 [POST] /api/v1/subscription
-/* sample body */
+# sample body 
 {
   "email_id": "test@test.com",
   "product_id": "62bac24b0bf33af1c877d97f"
 }
 ```
 4. Fetch subscription details for given subscription ID
-```json
+```
 [GET] /api/v1/subscription/:id
 ```
 5. Change subscription status for given subscription ID
-```json
+```
 [PUT] /api/v1/subscription/:id/changeStatus/:status
 ```
 

@@ -99,21 +99,23 @@ func (m *mongoDetails) SaveSubscription(ctx context.Context, us *domain.UserSubs
 		return nil, err
 	}
 
-	opts := options.Replace().SetUpsert(true)
-	filter := primitive.M{}
-
+	var recordID primitive.ObjectID
 	if !userSubscription.Id.IsZero() {
-		filter["_id"] = userSubscription.Id
+		recordID = userSubscription.Id
 	} else {
-		filter["_id"] = primitive.NewObjectID()
+		recordID = primitive.NewObjectID()
+	}
+	us.ID = recordID.Hex()
+	filter := primitive.M{
+		"_id": recordID,
 	}
 
-	result, err := m.UserSubscriptionCollection.ReplaceOne(ctx, filter, userSubscription, opts)
+	opts := options.Replace().SetUpsert(true)
+	_, err = m.UserSubscriptionCollection.ReplaceOne(ctx, filter, userSubscription, opts)
 	if err != nil {
 		return nil, err
 	}
 
-	us.ID = result.UpsertedID.(primitive.ObjectID).Hex()
 	return us, nil
 }
 

@@ -81,6 +81,31 @@ definitions:
       updated_at:
         type: string
     type: object
+  rest.updateSubscriptionByIDResponse:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      end_date:
+        type: string
+      id:
+        type: string
+      pause_start_date:
+        type: string
+      price:
+        type: number
+      product_name:
+        type: string
+      start_date:
+        type: string
+      status:
+        type: string
+      tax:
+        type: number
+      updated_at:
+        type: string
+    type: object
 host: '{{.Host}}'
 info:
   contact: {}
@@ -216,6 +241,52 @@ paths:
             $ref: '#/definitions/rest.errorRespose'
             type: object
       summary: get a subscription for given subscription id
+      tags:
+      - subscription-api
+  /subscription/{id}/changeStatus/{status}:
+    put:
+      consumes:
+      - application/json
+      description: update subscription with given status and returns updated subscription
+      parameters:
+      - description: subscription ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: status
+        enum:
+        - active
+        - cancel
+        - pause
+        in: path
+        name: status
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/rest.updateSubscriptionByIDResponse'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.errorRespose'
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.errorRespose'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.errorRespose'
+            type: object
+      summary: update subscription with given status
       tags:
       - subscription-api
 swagger: "2.0"

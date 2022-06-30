@@ -7,6 +7,7 @@ import (
 
 	"github.com/ganeshdipdumbare/gymondo-subscription/app"
 	docs "github.com/ganeshdipdumbare/gymondo-subscription/docs"
+	"github.com/ganeshdipdumbare/gymondo-subscription/domain"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	swaggerFiles "github.com/swaggo/files"
@@ -60,6 +61,20 @@ type getSubscriptionByIDResponse struct {
 	PauseStartDate *time.Time `json:"pause_start_date,omitempty"`
 }
 
+type updateSubscriptionByIDResponse struct {
+	ID             string     `json:"id"`
+	CreatedAt      time.Time  `json:"created_at"`
+	Email          string     `json:"email"`
+	ProductName    string     `json:"product_name"`
+	StartDate      time.Time  `json:"start_date"`
+	EndDate        time.Time  `json:"end_date"`
+	Price          float64    `json:"price"`
+	Tax            float64    `json:"tax"`
+	Status         string     `json:"status"`
+	UpdatedAt      *time.Time `json:"updated_at,omitempty"`
+	PauseStartDate *time.Time `json:"pause_start_date,omitempty"`
+}
+
 type errorRespose struct {
 	ErrorMessage string `json:"errorMessage"`
 }
@@ -83,6 +98,7 @@ func (api *apiDetails) setupRouter() *gin.Engine {
 	v1group.GET("/product", api.getAllProducts)
 	v1group.POST("/subscription", api.buySubscription)
 	v1group.GET("/subscription/:id", api.getSubscriptionByID)
+	v1group.PUT("/subscription/:id/changeStatus/:status", api.updateSubscriptionStatusByID)
 
 	return r
 }
@@ -246,6 +262,74 @@ func (api *apiDetails) getSubscriptionByID(c *gin.Context) {
 	}
 
 	c.IndentedJSON(http.StatusOK, &getSubscriptionByIDResponse{
+		ID:             subscriptionDetails.ID,
+		CreatedAt:      subscriptionDetails.CreatedAt,
+		Email:          subscriptionDetails.Email,
+		ProductName:    subscriptionDetails.ProductName,
+		StartDate:      subscriptionDetails.StartDate,
+		EndDate:        subscriptionDetails.EndDate,
+		Price:          subscriptionDetails.Price,
+		Tax:            subscriptionDetails.Tax,
+		Status:         string(subscriptionDetails.Status),
+		UpdatedAt:      subscriptionDetails.UpdatedAt,
+		PauseStartDate: subscriptionDetails.PauseStartDate,
+	})
+	c.Done()
+}
+
+// updateSubscriptionStatusByID godoc
+// @Summary update subscription with given status
+// @Description update subscription with given status and returns updated subscription
+// @Tags subscription-api
+// @Accept  json
+// @Produce  json
+// @Param id path string true "subscription ID"
+// @Param status path string true "status" Enums(active, cancel, pause)
+// @Success 200 {object} rest.updateSubscriptionByIDResponse
+// @Failure 404 {object} rest.errorRespose
+// @Failure 400 {object} rest.errorRespose
+// @Failure 500 {object} rest.errorRespose
+// @Router /subscription/{id}/changeStatus/{status} [put]
+func (api *apiDetails) updateSubscriptionStatusByID(c *gin.Context) {
+	subscriptionID := c.Params.ByName("id")
+	if subscriptionID == "" {
+		createErrorResponse(c, http.StatusBadRequest, "param id cannot be empty")
+		return
+	}
+
+	status := c.Params.ByName("status")
+	if status == "" {
+		createErrorResponse(c, http.StatusBadRequest, "status cannot be empty")
+		return
+	}
+
+	var subscriptionStatus domain.SubscriptionStatus
+	switch status {
+	case "active":
+		subscriptionStatus = domain.SubscriptionStatusActive
+	case "cancel":
+		subscriptionStatus = domain.SubscriptionStatusCancelled
+	case "pause":
+		subscriptionStatus = domain.SubscriptionStatusPaused
+	default:
+		createErrorResponse(c, http.StatusBadRequest, "invalid status value")
+		return
+	}
+
+	subscriptionDetails, err := api.app.UpdateSubscriptionStatusByID(c, subscriptionID, subscriptionStatus)
+	if err != nil {
+		statusCode := http.StatusInternalServerError
+		switch {
+		case errors.Is(err, app.InvalidArgErr):
+			statusCode = http.StatusBadRequest
+		case errors.Is(err, app.NotFoundErr):
+			statusCode = http.StatusNotFound
+		}
+		createErrorResponse(c, statusCode, err.Error())
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, &updateSubscriptionByIDResponse{
 		ID:             subscriptionDetails.ID,
 		CreatedAt:      subscriptionDetails.CreatedAt,
 		Email:          subscriptionDetails.Email,

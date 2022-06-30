@@ -88,7 +88,8 @@ The microservice is used to fetch products and buy subscription with particular 
 
 ## Improvements
 - Just a sample code, not as per system design which requires exact requirements
-- Subscription auto extend after end date
+- subscription start and end date is `DateTime` to make it simpler for testing
+- Subscription auto extend after end date 
 - Decide which DB can be used as per the data and accordingle normalization.
 - As of now, product name is stored in subscription details to make it simpler.
 - Use pagination for getting the products if the records in high quantity.

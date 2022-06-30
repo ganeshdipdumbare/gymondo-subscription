@@ -1,6 +1,6 @@
 start: 
-	docker-compose -f docker-compose.yml up --build -d
+	docker compose -f docker-compose.yml up --build -d
 stop:
-	docker-compose down
+	docker compose down
 test:
 	go test -v ./... 

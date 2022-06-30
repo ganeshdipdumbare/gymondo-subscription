@@ -2,7 +2,7 @@
 
 <img align="right" width="180px" src="https://raw.githubusercontent.com/swaggo/swag/master/assets/swaggo.png">
 
-# Gymonodo Subscription API
+# Gymondo Subscription API
 
 The Gymondo Subscription API micro-service allows user to fetch products as well as subscribe to particular product.
 

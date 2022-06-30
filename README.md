@@ -1,3 +1,6 @@
+[![Go](https://github.com/ganeshdipdumbare/gymondo-subscription/actions/workflows/go.yml/badge.svg?branch=master)](https://github.com/ganeshdipdumbare/gymondo-subscription/actions/workflows/go.yml)
+
+
 # Gymonodo Subscription API
 
 The Gymondo Subscription API micro-service allows user to fetch products as well as subscribe to particular product.

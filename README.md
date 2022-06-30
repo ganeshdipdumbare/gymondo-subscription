@@ -83,6 +83,8 @@ The microservice is used to fetch products and buy subscription with particular 
 - The product data is migrated at the start of the service.
 
 ## Improvements
+- Just a sample code, not as per system design which requires exact requirements
+- Subscription auto extend after end date
 - Decide which DB can be used as per the data.
 - As of now, product name is stored in subscription details to make it simpler.
 - Use pagination for getting the products if the records in high quantity.

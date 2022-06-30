@@ -226,3 +226,50 @@ func (suite *HandlerTestSuite) TestGetSubscriptionByID() {
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusNotFound, w.Code)
 }
+
+func (suite *HandlerTestSuite) TestUpdateSubscriptionStatusByID() {
+	t := suite.T()
+
+	appInstance := suite.App
+	subscriptionID := "62bc589278b49cee00f01421"
+	notFoundSubscriptionID := "62bc589278b49cee00f01421"
+
+	gomock.InOrder(
+		appInstance.EXPECT().UpdateSubscriptionStatusByID(gomock.Any(), subscriptionID, domain.SubscriptionStatusPaused).Return(&domain.UserSubscription{
+			ID: subscriptionID,
+		}, nil).Times(1),
+
+		appInstance.EXPECT().UpdateSubscriptionStatusByID(gomock.Any(), notFoundSubscriptionID, domain.SubscriptionStatusPaused).Return(nil, app.NotFoundErr).Times(1),
+
+		appInstance.EXPECT().UpdateSubscriptionStatusByID(gomock.Any(), "invalidID", domain.SubscriptionStatusPaused).Return(nil, app.InvalidArgErr).Times(1),
+	)
+
+	api := &apiDetails{
+		app: appInstance,
+	}
+	router := api.setupRouter()
+
+	// success test
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodPut, "/api/v1/subscription/"+subscriptionID+"/changeStatus/pause", nil)
+	router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	// call with invalid status
+	w = httptest.NewRecorder()
+	req, _ = http.NewRequest(http.MethodPut, "/api/v1/subscription/"+subscriptionID+"/changeStatus/invalidstatus", nil)
+	router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+
+	// subscription not found test
+	w = httptest.NewRecorder()
+	req, _ = http.NewRequest(http.MethodPut, "/api/v1/subscription/"+notFoundSubscriptionID+"/changeStatus/pause", nil)
+	router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusNotFound, w.Code)
+
+	// call with invalid id test
+	w = httptest.NewRecorder()
+	req, _ = http.NewRequest(http.MethodPut, "/api/v1/subscription/invalidID"+"/changeStatus/pause", nil)
+	router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+}

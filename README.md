@@ -1,5 +1,6 @@
 [![Go](https://github.com/ganeshdipdumbare/gymondo-subscription/actions/workflows/go.yml/badge.svg?branch=master)](https://github.com/ganeshdipdumbare/gymondo-subscription/actions/workflows/go.yml)
 
+<img align="right" width="180px" src="https://raw.githubusercontent.com/swaggo/swag/master/assets/swaggo.png">
 
 # Gymonodo Subscription API
 

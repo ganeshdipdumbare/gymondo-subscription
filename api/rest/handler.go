@@ -235,10 +235,12 @@ func (api *apiDetails) getSubscriptionByID(c *gin.Context) {
 	subscriptionDetails, err := api.app.GetSubscriptionByID(c, subscriptionID)
 	if err != nil {
 		statusCode := http.StatusInternalServerError
-		if errors.Is(err, app.NotFoundErr) {
+		switch {
+		case errors.Is(err, app.InvalidArgErr):
+			statusCode = http.StatusBadRequest
+		case errors.Is(err, app.NotFoundErr):
 			statusCode = http.StatusNotFound
 		}
-
 		createErrorResponse(c, statusCode, err.Error())
 		return
 	}

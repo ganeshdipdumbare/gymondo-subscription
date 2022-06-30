@@ -3,6 +3,7 @@ module github.com/ganeshdipdumbare/gymondo-subscription
 go 1.18
 
 require (
+	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/ganeshdipdumbare/goenv v0.0.0-20200518152659-b676dce7f1fd
 	github.com/gin-gonic/gin v1.8.1
 	github.com/go-playground/validator/v10 v10.11.0

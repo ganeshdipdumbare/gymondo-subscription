@@ -92,7 +92,7 @@ func createDomainUserSubscriptionRecord(us *UserSubscription) (*domain.UserSubsc
 	return userSubscription, nil
 }
 
-// SaveSubscription create new subscription if not present in the database otherwise update and return the subscription object
+// SaveSubscription create new subscription if not present in the database otherwise update and return the subscription record
 func (m *mongoDetails) SaveSubscription(ctx context.Context, us *domain.UserSubscription) (*domain.UserSubscription, error) {
 	userSubscription, err := createDBUserSubscriptionRecord(us)
 	if err != nil {
@@ -130,7 +130,7 @@ func (m *mongoDetails) GetSubscriptionByID(ctx context.Context, id string) (*dom
 	err = m.UserSubscriptionCollection.FindOne(ctx, filter).Decode(&record)
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
-			return nil, db.NotFoundErr
+			return nil, db.RecordNotFoundErr
 		}
 		return nil, err
 	}

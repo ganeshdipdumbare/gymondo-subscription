@@ -1,3 +1,4 @@
+basePath: '{{.BasePath}}'
 definitions:
   rest.buySubscriptionRequest:
     properties:
@@ -55,42 +56,39 @@ definitions:
       tax_percentage:
         type: number
     type: object
+  rest.getSubscriptionByIDResponse:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      end_date:
+        type: string
+      id:
+        type: string
+      pause_start_date:
+        type: string
+      price:
+        type: number
+      product_name:
+        type: string
+      start_date:
+        type: string
+      status:
+        type: string
+      tax:
+        type: number
+      updated_at:
+        type: string
+    type: object
+host: '{{.Host}}'
 info:
   contact: {}
   description: A REST server to manage user subscriptions of the products
+  license: {}
   title: Gymondo subscription api
   version: "1.0"
 paths:
-  /car:
-    post:
-      consumes:
-      - application/json
-      description: return created subscription record
-      parameters:
-      - description: create subscription request
-        in: body
-        name: buySubscriptionRequest
-        required: true
-        schema:
-          $ref: '#/definitions/rest.buySubscriptionRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/rest.buySubscriptionResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/rest.errorRespose'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/rest.errorRespose'
-      summary: create a subscription for the user with given product
-      tags:
-      - subscription-api
   /product:
     get:
       consumes:
@@ -103,10 +101,12 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/rest.getAllProductsResponse'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/rest.errorRespose'
+            type: object
       summary: get all the products
       tags:
       - product-api
@@ -128,19 +128,94 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/rest.getProductByIdResponse'
+            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/rest.errorRespose'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/rest.errorRespose'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/rest.errorRespose'
+            type: object
       summary: get a product for given product id
       tags:
       - product-api
+  /subscription:
+    post:
+      consumes:
+      - application/json
+      description: return created subscription record
+      parameters:
+      - description: create subscription request
+        in: body
+        name: buySubscriptionRequest
+        required: true
+        schema:
+          $ref: '#/definitions/rest.buySubscriptionRequest'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/rest.buySubscriptionResponse'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.errorRespose'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.errorRespose'
+            type: object
+      summary: create a subscription for the user with given product
+      tags:
+      - subscription-api
+  /subscription/{id}:
+    get:
+      consumes:
+      - application/json
+      description: return feteched  subscription record for input id
+      parameters:
+      - description: subscription ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/rest.getSubscriptionByIDResponse'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.errorRespose'
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.errorRespose'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.errorRespose'
+            type: object
+      summary: get a subscription for given subscription id
+      tags:
+      - subscription-api
 swagger: "2.0"

@@ -4,55 +4,12 @@
         "description": "A REST server to manage user subscriptions of the products",
         "title": "Gymondo subscription api",
         "contact": {},
+        "license": {},
         "version": "1.0"
     },
+    "host": "{{.Host}}",
+    "basePath": "{{.BasePath}}",
     "paths": {
-        "/car": {
-            "post": {
-                "description": "return created subscription record",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "subscription-api"
-                ],
-                "summary": "create a subscription for the user with given product",
-                "parameters": [
-                    {
-                        "description": "create subscription request",
-                        "name": "buySubscriptionRequest",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/rest.buySubscriptionRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/rest.buySubscriptionResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/rest.errorRespose"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/rest.errorRespose"
-                        }
-                    }
-                }
-            }
-        },
         "/product": {
             "get": {
                 "description": "return feteched  products",
@@ -70,12 +27,14 @@
                     "200": {
                         "description": "OK",
                         "schema": {
+                            "type": "object",
                             "$ref": "#/definitions/rest.getAllProductsResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
+                            "type": "object",
                             "$ref": "#/definitions/rest.errorRespose"
                         }
                     }
@@ -108,24 +67,132 @@
                     "200": {
                         "description": "OK",
                         "schema": {
+                            "type": "object",
                             "$ref": "#/definitions/rest.getProductByIdResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
+                            "type": "object",
                             "$ref": "#/definitions/rest.errorRespose"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
+                            "type": "object",
                             "$ref": "#/definitions/rest.errorRespose"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/rest.errorRespose"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscription": {
+            "post": {
+                "description": "return created subscription record",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subscription-api"
+                ],
+                "summary": "create a subscription for the user with given product",
+                "parameters": [
+                    {
+                        "description": "create subscription request",
+                        "name": "buySubscriptionRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/rest.buySubscriptionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/rest.buySubscriptionResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/rest.errorRespose"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/rest.errorRespose"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscription/{id}": {
+            "get": {
+                "description": "return feteched  subscription record for input id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subscription-api"
+                ],
+                "summary": "get a subscription for given subscription id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "subscription ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/rest.getSubscriptionByIDResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/rest.errorRespose"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/rest.errorRespose"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
                             "$ref": "#/definitions/rest.errorRespose"
                         }
                     }
@@ -217,6 +284,44 @@
                 },
                 "tax_percentage": {
                     "type": "number"
+                }
+            }
+        },
+        "rest.getSubscriptionByIDResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "end_date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "pause_start_date": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "product_name": {
+                    "type": "string"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "tax": {
+                    "type": "number"
+                },
+                "updated_at": {
+                    "type": "string"
                 }
             }
         }

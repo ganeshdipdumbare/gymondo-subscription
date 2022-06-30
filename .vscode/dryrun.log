@@ -1,0 +1,4 @@
+make: Entering directory `/Users/ganeshdip/code/gymondo-subscription'
+docker-compose -f docker-compose.yml up --build
+make: Leaving directory `/Users/ganeshdip/code/gymondo-subscription'
+ 

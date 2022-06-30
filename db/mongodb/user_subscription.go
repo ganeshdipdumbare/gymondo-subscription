@@ -124,7 +124,7 @@ func (m *mongoDetails) GetSubscriptionByID(ctx context.Context, id string) (*dom
 
 	idHex, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		return nil, fmt.Errorf("GetSubscriptionByID: %w", db.InvalidArgErr)
+		return nil, fmt.Errorf("id %w", db.InvalidArgErr)
 	}
 
 	filter := primitive.M{"_id": idHex}

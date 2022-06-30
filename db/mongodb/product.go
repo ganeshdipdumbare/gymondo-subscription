@@ -45,7 +45,7 @@ func (m *mongoDetails) GetProduct(ctx context.Context, id string) ([]domain.Prod
 	if id != "" {
 		idHex, err := primitive.ObjectIDFromHex(id)
 		if err != nil {
-			return nil, fmt.Errorf("GetProduct: invalid argument id %w", db.InvalidArgErr)
+			return nil, fmt.Errorf("id %w", db.InvalidArgErr)
 		}
 		filter["_id"] = idHex
 	}

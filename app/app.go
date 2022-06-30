@@ -34,7 +34,7 @@ type appDetails struct {
 // NewApp creates new app instance
 func NewApp(database db.DB) (App, error) {
 	if database == nil {
-		return nil, fmt.Errorf("invalid database: %w", NilArgErr)
+		return nil, fmt.Errorf("database %w", NilArgErr)
 	}
 
 	return &appDetails{
@@ -49,7 +49,7 @@ func (a *appDetails) GetProduct(ctx context.Context, id string) ([]domain.Produc
 	if err != nil {
 		switch {
 		case errors.Is(err, db.InvalidArgErr):
-			return nil, fmt.Errorf("invalid argument:%s %w", err.Error(), InvalidArgErr)
+			return nil, fmt.Errorf("get product failed:%s %w", err.Error(), InvalidArgErr)
 		default:
 			return nil, err
 		}

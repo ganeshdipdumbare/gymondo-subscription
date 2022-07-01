@@ -74,7 +74,7 @@ The microservice is used to fetch products and buy subscription with particular 
 ## Technical details
 - The service is written using clean code architecture which makes it modular and easy to maintain and test. These are the following layers  -
     - domain - Inner most layer, no external dependencies
-    - app - consists of main business logic, dependent on domain only
+    - app - consists of main business logic, dependent on domain only (must have 100% test coverage)
     - db - consists of db interface which provides db functions
         - URL - localhost:27017
         - DB - gymondodb

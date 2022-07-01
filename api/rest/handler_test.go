@@ -119,9 +119,12 @@ func (suite *HandlerTestSuite) TestGetAllProducts() {
 		TaxPercentage:      10,
 	}
 
-	appInstance.EXPECT().GetProduct(gomock.Any(), "").Return([]domain.Product{
-		productRecord,
-	}, nil).Times(1)
+	gomock.InOrder(
+		appInstance.EXPECT().GetProduct(gomock.Any(), "").Return([]domain.Product{
+			productRecord,
+		}, nil).Times(1),
+		appInstance.EXPECT().GetProduct(gomock.Any(), "").Return(nil, app.NotFoundErr).Times(1),
+	)
 
 	api := &apiDetails{
 		app: appInstance,
@@ -144,6 +147,12 @@ func (suite *HandlerTestSuite) TestGetAllProducts() {
 			Price:              productRecord.Price,
 			TaxPercentage:      productRecord.TaxPercentage,
 		}}}, v)
+
+	// error while getting product
+	w = httptest.NewRecorder()
+	req, _ = http.NewRequest(http.MethodGet, "/api/v1/product", nil)
+	router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusInternalServerError, w.Code)
 }
 
 func (suite *HandlerTestSuite) TestBuySubscription() {
@@ -158,6 +167,8 @@ func (suite *HandlerTestSuite) TestBuySubscription() {
 		appInstance.EXPECT().BuySubscription(gomock.Any(), productID, emailID).Return(&domain.UserSubscription{
 			ID: subscriptionID,
 		}, nil).Times(1),
+
+		appInstance.EXPECT().BuySubscription(gomock.Any(), "invalidid", emailID).Return(nil, app.InvalidArgErr).Times(1),
 	)
 
 	api := &apiDetails{
@@ -180,6 +191,26 @@ func (suite *HandlerTestSuite) TestBuySubscription() {
 	body = strings.NewReader(`{
 		"product_id":"62bc589278b49cee00f01421",
 		"email_id":"test"
+	}`)
+	req, _ = http.NewRequest(http.MethodPost, "/api/v1/subscription", body)
+	router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+
+	// invalid json body
+	w = httptest.NewRecorder()
+	body = strings.NewReader(`{
+		"product_id":"62bc589278b49cee00f01421"
+		"email_id":"test"
+	}`)
+	req, _ = http.NewRequest(http.MethodPost, "/api/v1/subscription", body)
+	router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+
+	// buy subscription record returns error
+	w = httptest.NewRecorder()
+	body = strings.NewReader(`{
+		"product_id":"invalidid",
+		"email_id":"test@test.com"
 	}`)
 	req, _ = http.NewRequest(http.MethodPost, "/api/v1/subscription", body)
 	router.ServeHTTP(w, req)

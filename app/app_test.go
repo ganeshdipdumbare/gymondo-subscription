@@ -4,6 +4,7 @@ import (
 	"context"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/ganeshdipdumbare/gymondo-subscription/db"
 	"github.com/ganeshdipdumbare/gymondo-subscription/domain"
@@ -92,7 +93,7 @@ func (suite *AppTestSuite) TestGetProduct() {
 		Price:              10,
 		TaxPercentage:      10,
 	}
-
+	notFoundID := "62bb4ecdba3bbe275f8c7789"
 	gomock.InOrder(
 		database.EXPECT().GetProduct(ctx, id).Return([]domain.Product{
 			productRecord,
@@ -102,6 +103,7 @@ func (suite *AppTestSuite) TestGetProduct() {
 		database.EXPECT().GetProduct(ctx, "").Return([]domain.Product{
 			productRecord,
 		}, nil).Times(1),
+		database.EXPECT().GetProduct(ctx, notFoundID).Return(nil, db.RecordNotFoundErr).Times(1),
 	)
 	type fields struct {
 		database db.DB
@@ -157,6 +159,18 @@ func (suite *AppTestSuite) TestGetProduct() {
 			},
 			wantErr: false,
 		},
+		{
+			name: "should return error for not found product id",
+			fields: fields{
+				database: database,
+			},
+			args: args{
+				ctx: ctx,
+				id:  notFoundID,
+			},
+			want:    nil,
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -198,6 +212,10 @@ func (suite *AppTestSuite) TestBuySubscription() {
 			productRecord,
 		}, nil).Times(1),
 		database.EXPECT().SaveSubscription(gomock.Any(), gomock.AssignableToTypeOf(&subscriptionRecord)).Return(&subscriptionRecord, nil).Times(1),
+
+		database.EXPECT().GetProduct(gomock.Any(), gomock.AssignableToTypeOf(productRecord.ID)).Return(nil, db.RecordNotFoundErr).Times(1),
+
+		database.EXPECT().GetProduct(gomock.Any(), gomock.AssignableToTypeOf(productRecord.ID)).Return([]domain.Product{}, nil).Times(1),
 	)
 
 	type fields struct {
@@ -239,6 +257,30 @@ func (suite *AppTestSuite) TestBuySubscription() {
 			},
 			wantErr: true,
 		},
+		{
+			name: "should return error if get prod returns error",
+			fields: fields{
+				database: database,
+			},
+			args: args{
+				ctx:       ctx,
+				productID: productId,
+				emailID:   "testmail@test.com",
+			},
+			wantErr: true,
+		},
+		{
+			name: "should return error if get prod returns empty slice",
+			fields: fields{
+				database: database,
+			},
+			args: args{
+				ctx:       ctx,
+				productID: productId,
+				emailID:   "testmail@test.com",
+			},
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -267,6 +309,7 @@ func (suite *AppTestSuite) TestGetSubscriptionByID() {
 	gomock.InOrder(
 		database.EXPECT().GetSubscriptionByID(gomock.Any(), subscriptionId).Return(&subscriptionRecord, nil).Times(1),
 		database.EXPECT().GetSubscriptionByID(gomock.Any(), subscriptionId).Return(nil, db.RecordNotFoundErr).Times(1),
+		database.EXPECT().GetSubscriptionByID(gomock.Any(), "invalid").Return(nil, db.InvalidArgErr).Times(1),
 	)
 
 	type fields struct {
@@ -303,6 +346,18 @@ func (suite *AppTestSuite) TestGetSubscriptionByID() {
 			args: args{
 				ctx: ctx,
 				id:  subscriptionId,
+			},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name: "should return error if input id is invalid",
+			fields: fields{
+				database: database,
+			},
+			args: args{
+				ctx: ctx,
+				id:  "invalid",
 			},
 			want:    nil,
 			wantErr: true,
@@ -345,9 +400,21 @@ func (suite *AppTestSuite) TestUpdateSubscriptionStatusByID() {
 	notFoundSubscriptionId := "62bb4ecdba3bbe275f8c7789"
 
 	ctx := context.Background()
+	timeNow := time.Now()
 	subscriptionRecord := domain.UserSubscription{
 		ID:     subscriptionId,
 		Status: domain.SubscriptionStatusActive,
+	}
+
+	subscriptionPuasedRecord := domain.UserSubscription{
+		ID:             subscriptionId,
+		Status:         domain.SubscriptionStatusPaused,
+		PauseStartDate: &timeNow,
+	}
+
+	subscriptionCancelledRecord := domain.UserSubscription{
+		ID:     subscriptionId,
+		Status: domain.SubscriptionStatusCancelled,
 	}
 
 	gomock.InOrder(
@@ -361,6 +428,27 @@ func (suite *AppTestSuite) TestUpdateSubscriptionStatusByID() {
 
 		// test 3
 		database.EXPECT().GetSubscriptionByID(gomock.Any(), subscriptionId).Return(&subscriptionRecord, nil).Times(1),
+
+		// test 4
+		database.EXPECT().GetSubscriptionByID(gomock.Any(), subscriptionId).Return(&subscriptionPuasedRecord, nil).Times(1),
+
+		database.EXPECT().SaveSubscription(gomock.Any(), gomock.AssignableToTypeOf(&subscriptionPuasedRecord)).Return(&subscriptionRecord, nil).Times(1),
+
+		// test 5
+		database.EXPECT().GetSubscriptionByID(gomock.Any(), subscriptionId).Return(&subscriptionRecord, nil).Times(1),
+
+		database.EXPECT().SaveSubscription(gomock.Any(), gomock.AssignableToTypeOf(&subscriptionRecord)).Return(&subscriptionRecord, nil).Times(1),
+
+		// test 6
+		database.EXPECT().GetSubscriptionByID(gomock.Any(), "invalidID").Return(nil, db.InvalidArgErr).Times(1),
+
+		// test 7
+		database.EXPECT().GetSubscriptionByID(gomock.Any(), subscriptionId).Return(&subscriptionCancelledRecord, nil).Times(1),
+
+		// test 8
+		database.EXPECT().GetSubscriptionByID(gomock.Any(), subscriptionId).Return(&subscriptionPuasedRecord, nil).Times(1),
+
+		database.EXPECT().SaveSubscription(gomock.Any(), gomock.AssignableToTypeOf(&subscriptionPuasedRecord)).Return(&subscriptionPuasedRecord, nil).Times(1),
 	)
 
 	type fields struct {
@@ -390,6 +478,18 @@ func (suite *AppTestSuite) TestUpdateSubscriptionStatusByID() {
 			wantErr: false,
 		},
 		{
+			name: "should return error for empty input id",
+			fields: fields{
+				database: database,
+			},
+			args: args{
+				ctx:    ctx,
+				id:     "",
+				status: domain.SubscriptionStatusPaused,
+			},
+			wantErr: true,
+		},
+		{
 			name: "should return error if subscription not found for given id",
 			fields: fields{
 				database: database,
@@ -412,6 +512,66 @@ func (suite *AppTestSuite) TestUpdateSubscriptionStatusByID() {
 				status: domain.SubscriptionStatusActive,
 			},
 			wantErr: true,
+		},
+		{
+			name: "should return success for cancelling paused subscription",
+			fields: fields{
+				database: database,
+			},
+			args: args{
+				ctx:    ctx,
+				id:     subscriptionId,
+				status: domain.SubscriptionStatusCancelled,
+			},
+			wantErr: false,
+		},
+		{
+			name: "should return success for cancelling active subscription",
+			fields: fields{
+				database: database,
+			},
+			args: args{
+				ctx:    ctx,
+				id:     subscriptionId,
+				status: domain.SubscriptionStatusCancelled,
+			},
+			wantErr: false,
+		},
+		{
+			name: "should return error for invalid input id",
+			fields: fields{
+				database: database,
+			},
+			args: args{
+				ctx:    ctx,
+				id:     "invalidID",
+				status: domain.SubscriptionStatusPaused,
+			},
+			wantErr: true,
+		},
+		{
+			name: "should return error for chaning status of cancelled subscription",
+			fields: fields{
+				database: database,
+			},
+			args: args{
+				ctx:    ctx,
+				id:     subscriptionId,
+				status: domain.SubscriptionStatusActive,
+			},
+			wantErr: true,
+		},
+		{
+			name: "should return success for unpausing the paused subscription",
+			fields: fields{
+				database: database,
+			},
+			args: args{
+				ctx:    ctx,
+				id:     subscriptionId,
+				status: domain.SubscriptionStatusActive,
+			},
+			wantErr: false,
 		},
 	}
 	for _, tt := range tests {

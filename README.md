@@ -87,6 +87,7 @@ The microservice is used to fetch products and buy subscription with particular 
 
 ## Improvements
 - Just a sample code, not as per system design which requires exact requirements
+- For money related variables, dont use float due to precision error. Use - https://github.com/Rhymond/go-money
 - subscription start and end date is `DateTime` to make it simpler for testing
 - Subscription auto extend after end date 
 - Decide which DB can be used as per the data and accordingly may need normalization.

@@ -1,4 +1,3 @@
-basePath: '{{.BasePath}}'
 definitions:
   rest.buySubscriptionRequest:
     properties:
@@ -106,11 +105,9 @@ definitions:
       updated_at:
         type: string
     type: object
-host: '{{.Host}}'
 info:
   contact: {}
   description: A REST server to manage user subscriptions of the products
-  license: {}
   title: Gymondo Subscription API
   version: "1.0"
 paths:
@@ -126,12 +123,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/rest.getAllProductsResponse'
-            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/rest.errorRespose'
-            type: object
       summary: get all the products
       tags:
       - product-api
@@ -153,22 +148,18 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/rest.getProductByIdResponse'
-            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/rest.errorRespose'
-            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/rest.errorRespose'
-            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/rest.errorRespose'
-            type: object
       summary: get a product for given product id
       tags:
       - product-api
@@ -184,7 +175,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/rest.buySubscriptionRequest'
-          type: object
       produces:
       - application/json
       responses:
@@ -192,17 +182,14 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/rest.buySubscriptionResponse'
-            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/rest.errorRespose'
-            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/rest.errorRespose'
-            type: object
       summary: create a subscription for the user with given product
       tags:
       - subscription-api
@@ -224,27 +211,23 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/rest.getSubscriptionByIDResponse'
-            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/rest.errorRespose'
-            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/rest.errorRespose'
-            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/rest.errorRespose'
-            type: object
       summary: get a subscription for given subscription id
       tags:
       - subscription-api
   /subscription/{id}/changeStatus/{status}:
-    put:
+    patch:
       consumes:
       - application/json
       description: update subscription with given status and returns updated subscription
@@ -270,22 +253,18 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/rest.updateSubscriptionByIDResponse'
-            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/rest.errorRespose'
-            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/rest.errorRespose'
-            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/rest.errorRespose'
-            type: object
       summary: update subscription with given status
       tags:
       - subscription-api

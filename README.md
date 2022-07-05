@@ -68,7 +68,7 @@ The microservice is used to fetch products and buy subscription with particular 
 ```
 5. Change subscription status for given subscription ID
 ```
-[PUT] /api/v1/subscription/:id/changeStatus/:status
+[PATCH] /api/v1/subscription/:id/changeStatus/:status
 ```
 
 ## Technical details

@@ -98,7 +98,7 @@ func (api *apiDetails) setupRouter() *gin.Engine {
 	v1group.GET("/product", api.getAllProducts)
 	v1group.POST("/subscription", api.buySubscription)
 	v1group.GET("/subscription/:id", api.getSubscriptionByID)
-	v1group.PUT("/subscription/:id/changeStatus/:status", api.updateSubscriptionStatusByID)
+	v1group.PATCH("/subscription/:id/changeStatus/:status", api.updateSubscriptionStatusByID)
 
 	return r
 }
@@ -289,7 +289,7 @@ func (api *apiDetails) getSubscriptionByID(c *gin.Context) {
 // @Failure 404 {object} rest.errorRespose
 // @Failure 400 {object} rest.errorRespose
 // @Failure 500 {object} rest.errorRespose
-// @Router /subscription/{id}/changeStatus/{status} [put]
+// @Router /subscription/{id}/changeStatus/{status} [patch]
 func (api *apiDetails) updateSubscriptionStatusByID(c *gin.Context) {
 	subscriptionID := c.Params.ByName("id")
 	if subscriptionID == "" {

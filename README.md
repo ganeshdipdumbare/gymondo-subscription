@@ -2,6 +2,7 @@
 [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=ganeshdipdumbare_gymondo-subscription&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=ganeshdipdumbare_gymondo-subscription)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=ganeshdipdumbare_gymondo-subscription&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=ganeshdipdumbare_gymondo-subscription)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=ganeshdipdumbare_gymondo-subscription&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=ganeshdipdumbare_gymondo-subscription)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ganeshdipdumbare_gymondo-subscription&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=ganeshdipdumbare_gymondo-subscription)
 
 
 <img align="right" width="180px" src="https://raw.githubusercontent.com/swaggo/swag/master/assets/swaggo.png">

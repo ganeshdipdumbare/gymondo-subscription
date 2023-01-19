@@ -2,7 +2,7 @@ package config
 
 import "github.com/ganeshdipdumbare/goenv"
 
-type EnvVar struct {
+type envVar struct {
 	MongoUri           string `json:"mongo_uri"`
 	MongoDb            string `json:"mongo_db"`
 	Port               string `json:"port"`
@@ -10,7 +10,7 @@ type EnvVar struct {
 }
 
 var (
-	envVars = &EnvVar{
+	envVars = &envVar{
 		Port:               "8080",
 		MongoDb:            "gymondodb",
 		MigrationFilesPath: "file://migration",
@@ -21,6 +21,6 @@ func init() {
 	goenv.SyncEnvVar(&envVars)
 }
 
-func Get() *EnvVar {
+func Get() *envVar {
 	return envVars
 }

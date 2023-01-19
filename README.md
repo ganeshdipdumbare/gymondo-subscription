@@ -1,4 +1,5 @@
 [![Go](https://github.com/ganeshdipdumbare/gymondo-subscription/actions/workflows/go.yml/badge.svg?branch=master)](https://github.com/ganeshdipdumbare/gymondo-subscription/actions/workflows/go.yml)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ganeshdipdumbare_gymondo-subscription&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=ganeshdipdumbare_gymondo-subscription)
 
 <img align="right" width="180px" src="https://raw.githubusercontent.com/swaggo/swag/master/assets/swaggo.png">
 

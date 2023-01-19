@@ -7,9 +7,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ganeshdipdumbare/gymondo-subscription/app"
-	"github.com/ganeshdipdumbare/gymondo-subscription/domain"
-	"github.com/ganeshdipdumbare/gymondo-subscription/mocks"
+	"github.com/ganeshdipdumbare/gymondo-subscription/internal/app"
+	"github.com/ganeshdipdumbare/gymondo-subscription/internal/domain"
+	"github.com/ganeshdipdumbare/gymondo-subscription/internal/mocks"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/suite"
 	"gotest.tools/assert"

@@ -6,9 +6,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ganeshdipdumbare/gymondo-subscription/db"
-	"github.com/ganeshdipdumbare/gymondo-subscription/domain"
-	"github.com/ganeshdipdumbare/gymondo-subscription/mocks"
+	"github.com/ganeshdipdumbare/gymondo-subscription/internal/db"
+	"github.com/ganeshdipdumbare/gymondo-subscription/internal/domain"
+	"github.com/ganeshdipdumbare/gymondo-subscription/internal/mocks"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/suite"
 )

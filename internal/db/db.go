@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/ganeshdipdumbare/gymondo-subscription/domain"
+	"github.com/ganeshdipdumbare/gymondo-subscription/internal/domain"
 )
 
 var (
@@ -13,8 +13,9 @@ var (
 	RecordNotFoundErr = errors.New("record not found")
 )
 
-//go:generate mockgen -destination=../mocks/mock_db.go -package=mocks github.com/ganeshdipdumbare/gymondo-subscription/db DB
 // DB interface to interact with database
+//
+//go:generate mockgen -destination=../mocks/mock_db.go -package=mocks github.com/ganeshdipdumbare/gymondo-subscription/internal/db DB
 type DB interface {
 	GetProduct(ctx context.Context, id string) ([]domain.Product, error)
 	SaveSubscription(ctx context.Context, subsciption *domain.UserSubscription) (*domain.UserSubscription, error)

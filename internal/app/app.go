@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/ganeshdipdumbare/gymondo-subscription/db"
-	"github.com/ganeshdipdumbare/gymondo-subscription/domain"
+	"github.com/ganeshdipdumbare/gymondo-subscription/internal/db"
+	"github.com/ganeshdipdumbare/gymondo-subscription/internal/domain"
 )
 
 var (
@@ -18,8 +18,9 @@ var (
 	StatusUnchangedErr = errors.New("status is unchanged")
 )
 
-//go:generate mockgen -destination=../mocks/mock_app.go -package=mocks github.com/ganeshdipdumbare/gymondo-subscription/app App
 // App interface which consists of business logic/use cases
+//
+//go:generate mockgen -destination=../mocks/mock_app.go -package=mocks github.com/ganeshdipdumbare/gymondo-subscription/internal/app App
 type App interface {
 	GetProduct(ctx context.Context, id string) ([]domain.Product, error)
 	BuySubscription(ctx context.Context, productID string, emailID string) (*domain.UserSubscription, error)

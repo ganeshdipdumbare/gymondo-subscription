@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/ganeshdipdumbare/gymondo-subscription/api"
-	"github.com/ganeshdipdumbare/gymondo-subscription/app"
+	"github.com/ganeshdipdumbare/gymondo-subscription/internal/api"
+	"github.com/ganeshdipdumbare/gymondo-subscription/internal/app"
 )
 
 const (

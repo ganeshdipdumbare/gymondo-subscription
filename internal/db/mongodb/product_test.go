@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/ganeshdipdumbare/gymondo-subscription/domain"
+	"github.com/ganeshdipdumbare/gymondo-subscription/internal/domain"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )

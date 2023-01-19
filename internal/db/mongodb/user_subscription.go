@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/ganeshdipdumbare/gymondo-subscription/db"
-	"github.com/ganeshdipdumbare/gymondo-subscription/domain"
+	"github.com/ganeshdipdumbare/gymondo-subscription/internal/db"
+	"github.com/ganeshdipdumbare/gymondo-subscription/internal/domain"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"

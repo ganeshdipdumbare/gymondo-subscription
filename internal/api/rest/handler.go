@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/ganeshdipdumbare/gymondo-subscription/app"
-	docs "github.com/ganeshdipdumbare/gymondo-subscription/docs"
-	"github.com/ganeshdipdumbare/gymondo-subscription/domain"
+	"github.com/ganeshdipdumbare/gymondo-subscription/internal/app"
+	docs "github.com/ganeshdipdumbare/gymondo-subscription/internal/docs"
+	"github.com/ganeshdipdumbare/gymondo-subscription/internal/domain"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	swaggerFiles "github.com/swaggo/files"
